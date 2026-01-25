@@ -1,43 +1,56 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { ZoomIn, ZoomOut, Maximize2, Download, FileText } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { useUIStore } from '../../store/uiStore';
 import { useTemplateStore } from '../../store/templateStore';
 import { useResumeStore } from '../../store/resumeStore';
 import ResumePreview from './ResumePreview';
 
-// A4 dimensions in pixels at 96 DPI
+// A4 dimensions
 const A4_HEIGHT_MM = 297;
 const A4_WIDTH_MM = 210;
-const MM_TO_PX = 3.7795275591; // 1mm = 3.7795275591px at 96 DPI
-const A4_HEIGHT_PX = A4_HEIGHT_MM * MM_TO_PX;
+// Convert mm to pixels at 96 DPI (standard screen resolution)
+const MM_TO_PX = 96 / 25.4; // ~3.78 px per mm
+const A4_HEIGHT_PX = Math.round(A4_HEIGHT_MM * MM_TO_PX);
+const A4_WIDTH_PX = Math.round(A4_WIDTH_MM * MM_TO_PX);
 
 export default function PreviewPanel() {
-  const { zoom, setZoom, zoomIn, zoomOut, openExportModal } = useUIStore();
+  const { zoom, setZoom, zoomIn, zoomOut } = useUIStore();
   const { getCurrentTemplate } = useTemplateStore();
   const { resume } = useResumeStore();
-  const contentRef = useRef(null);
+  const measureRef = useRef(null);
   const [pageCount, setPageCount] = useState(1);
+  const [contentHeight, setContentHeight] = useState(A4_HEIGHT_PX);
 
   const template = getCurrentTemplate();
 
   // Calculate number of pages based on content height
   const calculatePages = useCallback(() => {
-    if (contentRef.current) {
-      const contentHeight = contentRef.current.scrollHeight;
-      const pages = Math.max(1, Math.ceil(contentHeight / A4_HEIGHT_PX));
+    if (measureRef.current) {
+      const height = measureRef.current.scrollHeight;
+      const pages = Math.max(1, Math.ceil(height / A4_HEIGHT_PX));
+      setContentHeight(height);
       setPageCount(pages);
     }
   }, []);
 
   // Recalculate pages when resume or template changes
   useEffect(() => {
-    calculatePages();
+    // Small delay to allow content to render
+    const timer = setTimeout(calculatePages, 100);
+
     // Use ResizeObserver to handle dynamic content changes
-    const observer = new ResizeObserver(calculatePages);
-    if (contentRef.current) {
-      observer.observe(contentRef.current);
+    const observer = new ResizeObserver(() => {
+      setTimeout(calculatePages, 50);
+    });
+
+    if (measureRef.current) {
+      observer.observe(measureRef.current);
     }
-    return () => observer.disconnect();
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, [resume, template, calculatePages]);
 
   return (
@@ -83,60 +96,81 @@ export default function PreviewPanel() {
         </div>
       </div>
 
-      {/* Preview Container */}
-      <div className="flex-1 overflow-auto p-6 flex flex-col items-center">
+      {/* Preview Container - Shows multiple A4 pages like PDF viewer */}
+      <div className="flex-1 overflow-auto p-6 bg-gray-300">
         <div
-          className="origin-top transition-transform"
-          style={{ transform: `scale(${zoom / 100})` }}
+          className="flex flex-col items-center gap-6"
+          style={{
+            transform: `scale(${zoom / 100})`,
+            transformOrigin: 'top center',
+            paddingBottom: `${(zoom / 100) * 100}px`
+          }}
         >
-          <div className="a4-pages-container">
-            {/* Content measurement wrapper */}
+          {/* Hidden measurement container */}
+          <div
+            ref={measureRef}
+            style={{
+              position: 'absolute',
+              visibility: 'hidden',
+              width: `${A4_WIDTH_PX}px`,
+              pointerEvents: 'none'
+            }}
+          >
+            <ResumePreview />
+          </div>
+
+          {/* Render each page as a separate A4 sheet */}
+          {Array.from({ length: pageCount }, (_, pageIndex) => (
             <div
-              ref={contentRef}
-              className="a4-preview rounded-lg"
+              key={pageIndex}
+              className="a4-page bg-white relative"
               style={{
-                width: '210mm',
-                minHeight: '297mm',
-                backgroundColor: template?.styles?.colors?.background || '#ffffff',
-                position: 'relative'
+                width: `${A4_WIDTH_PX}px`,
+                height: `${A4_HEIGHT_PX}px`,
+                overflow: 'hidden',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+                borderRadius: '2px'
               }}
             >
-              <ResumePreview />
+              {/* Content container - positioned to show correct page portion */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: `${A4_WIDTH_PX}px`,
+                  transform: `translateY(-${pageIndex * A4_HEIGHT_PX}px)`,
+                  backgroundColor: template?.styles?.colors?.background || '#ffffff'
+                }}
+              >
+                <ResumePreview />
+              </div>
 
-              {/* Page break indicators */}
-              {Array.from({ length: pageCount - 1 }, (_, i) => (
+              {/* Page number indicator */}
+              {pageCount > 1 && (
                 <div
-                  key={i}
-                  className="page-break-indicator"
                   style={{
                     position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: `${(i + 1) * A4_HEIGHT_MM}mm`,
-                    height: '20px',
-                    marginTop: '-10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    pointerEvents: 'none',
-                    zIndex: 10
+                    bottom: '8px',
+                    right: '12px',
+                    fontSize: '9px',
+                    color: '#9ca3af',
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    padding: '2px 6px',
+                    borderRadius: '2px'
                   }}
                 >
-                  <div className="page-break-line" />
-                  <span className="page-break-label">
-                    Page {i + 2}
-                  </span>
-                  <div className="page-break-line" />
+                  {pageIndex + 1} / {pageCount}
                 </div>
-              ))}
+              )}
             </div>
-          </div>
+          ))}
         </div>
       </div>
 
       {/* Status Bar */}
       <div className="px-4 py-2 bg-white border-t border-gray-200 text-xs text-gray-500 flex items-center justify-between">
-        <span>A4 Format (210mm x 297mm) • {pageCount} {pageCount === 1 ? 'page' : 'pages'}</span>
+        <span>A4 (210 × 297 mm) • {pageCount} {pageCount === 1 ? 'page' : 'pages'}</span>
         <span className="flex items-center gap-1">
           <span className="w-2 h-2 bg-green-500 rounded-full"></span>
           Auto-saved

@@ -1,6 +1,7 @@
 import { GraduationCap, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
+import MonthPicker from '../../common/MonthPicker';
 
 export default function Education() {
   const { resume, addEducation, updateEducation, removeEducation } = useResumeStore();
@@ -127,20 +128,18 @@ export default function Education() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="form-label">Start Date</label>
-                    <input
-                      type="month"
+                    <MonthPicker
                       value={edu.startDate}
-                      onChange={(e) => updateEducation(edu.id, 'startDate', e.target.value)}
-                      className="form-input"
+                      onChange={(value) => updateEducation(edu.id, 'startDate', value)}
+                      placeholder="Select start date"
                     />
                   </div>
                   <div>
                     <label className="form-label">End Date</label>
-                    <input
-                      type="month"
+                    <MonthPicker
                       value={edu.endDate}
-                      onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
-                      className="form-input"
+                      onChange={(value) => updateEducation(edu.id, 'endDate', value)}
+                      placeholder="Select end date"
                     />
                   </div>
                   <div>

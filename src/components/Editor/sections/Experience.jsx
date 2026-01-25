@@ -1,6 +1,7 @@
 import { Briefcase, Plus, Trash2, GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
+import MonthPicker from '../../common/MonthPicker';
 
 export default function Experience() {
   const { resume, addExperience, updateExperience, removeExperience } = useResumeStore();
@@ -127,22 +128,20 @@ export default function Experience() {
                   </div>
                   <div>
                     <label className="form-label">Start Date</label>
-                    <input
-                      type="month"
+                    <MonthPicker
                       value={exp.startDate}
-                      onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
-                      className="form-input"
+                      onChange={(value) => updateExperience(exp.id, 'startDate', value)}
+                      placeholder="Select start date"
                     />
                   </div>
                   <div>
                     <label className="form-label">End Date</label>
                     <div className="space-y-2">
-                      <input
-                        type="month"
+                      <MonthPicker
                         value={exp.endDate}
-                        onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
+                        onChange={(value) => updateExperience(exp.id, 'endDate', value)}
+                        placeholder="Select end date"
                         disabled={exp.current}
-                        className="form-input disabled:bg-gray-100"
                       />
                       <label className="flex items-center gap-2 text-sm">
                         <input

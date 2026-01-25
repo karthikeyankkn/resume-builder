@@ -1,6 +1,7 @@
 import { Award, Plus, Trash2, ChevronDown, ChevronUp, Link } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
+import MonthPicker from '../../common/MonthPicker';
 
 export default function Certifications() {
   const { resume, addCertification, updateCertification, removeCertification } = useResumeStore();
@@ -90,11 +91,10 @@ export default function Certifications() {
                   </div>
                   <div>
                     <label className="form-label">Date Obtained</label>
-                    <input
-                      type="month"
+                    <MonthPicker
                       value={cert.date}
-                      onChange={(e) => updateCertification(cert.id, 'date', e.target.value)}
-                      className="form-input"
+                      onChange={(value) => updateCertification(cert.id, 'date', value)}
+                      placeholder="Select date"
                     />
                   </div>
                 </div>

@@ -2,12 +2,15 @@ import { X, Download, FileText, Loader2, FileJson } from 'lucide-react';
 import { useState } from 'react';
 import { useUIStore } from '../../store/uiStore';
 import { useResumeStore } from '../../store/resumeStore';
+import { useTemplateStore } from '../../store/templateStore';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import ResumePDF from './ResumePDF';
 
 export default function ExportModal() {
   const { closeExportModal } = useUIStore();
   const { resume, exportResume } = useResumeStore();
+  const { getCurrentTemplate } = useTemplateStore();
+  const template = getCurrentTemplate();
   const [activeTab, setActiveTab] = useState('pdf');
   const [showPreview, setShowPreview] = useState(false);
 
@@ -100,14 +103,14 @@ export default function ExportModal() {
               {showPreview && (
                 <div className="border rounded-lg overflow-hidden" style={{ height: '500px' }}>
                   <PDFViewer width="100%" height="100%" showToolbar={false}>
-                    <ResumePDF resume={resume} />
+                    <ResumePDF resume={resume} template={template} />
                   </PDFViewer>
                 </div>
               )}
 
               {/* Download Button */}
               <PDFDownloadLink
-                document={<ResumePDF resume={resume} />}
+                document={<ResumePDF resume={resume} template={template} />}
                 fileName={`${resume.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`}
               >
                 {({ loading, error }) => (
