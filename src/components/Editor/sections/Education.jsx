@@ -1,0 +1,200 @@
+import { GraduationCap, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
+import { useResumeStore } from '../../../store/resumeStore';
+
+export default function Education() {
+  const { resume, addEducation, updateEducation, removeEducation } = useResumeStore();
+  const [expandedItems, setExpandedItems] = useState({});
+
+  const toggleExpand = (id) => {
+    setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleHighlightChange = (eduId, index, value) => {
+    const edu = resume.education.find((e) => e.id === eduId);
+    if (edu) {
+      const highlights = [...edu.highlights];
+      highlights[index] = value;
+      updateEducation(eduId, 'highlights', highlights);
+    }
+  };
+
+  const addHighlight = (eduId) => {
+    const edu = resume.education.find((e) => e.id === eduId);
+    if (edu) {
+      updateEducation(eduId, 'highlights', [...edu.highlights, '']);
+    }
+  };
+
+  const removeHighlight = (eduId, index) => {
+    const edu = resume.education.find((e) => e.id === eduId);
+    if (edu) {
+      const highlights = edu.highlights.filter((_, i) => i !== index);
+      updateEducation(eduId, 'highlights', highlights);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <GraduationCap className="w-5 h-5 text-primary-600" />
+          Education
+        </h2>
+        <button
+          onClick={addEducation}
+          className="btn-secondary text-sm py-1.5 px-3"
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          Add
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        {resume.education.map((edu) => (
+          <div
+            key={edu.id}
+            className="border border-gray-200 rounded-lg overflow-hidden"
+          >
+            {/* Header */}
+            <div
+              className="flex items-center gap-2 p-3 bg-gray-50 cursor-pointer hover:bg-gray-100"
+              onClick={() => toggleExpand(edu.id)}
+            >
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900 truncate">
+                  {edu.degree || 'Degree'} {edu.field && `in ${edu.field}`}
+                </p>
+                <p className="text-sm text-gray-500 truncate">
+                  {edu.institution || 'Institution Name'}
+                </p>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (confirm('Delete this education?')) {
+                    removeEducation(edu.id);
+                  }
+                }}
+                className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              {expandedItems[edu.id] ? (
+                <ChevronUp className="w-5 h-5 text-gray-400" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-400" />
+              )}
+            </div>
+
+            {/* Expanded Content */}
+            {expandedItems[edu.id] && (
+              <div className="p-4 space-y-4 border-t border-gray-200">
+                <div>
+                  <label className="form-label">Institution *</label>
+                  <input
+                    type="text"
+                    value={edu.institution}
+                    onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
+                    placeholder="University Name"
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="form-label">Degree *</label>
+                    <input
+                      type="text"
+                      value={edu.degree}
+                      onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
+                      placeholder="Bachelor of Science"
+                      className="form-input"
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label">Field of Study</label>
+                    <input
+                      type="text"
+                      value={edu.field}
+                      onChange={(e) => updateEducation(edu.id, 'field', e.target.value)}
+                      placeholder="Computer Science"
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="form-label">Start Date</label>
+                    <input
+                      type="month"
+                      value={edu.startDate}
+                      onChange={(e) => updateEducation(edu.id, 'startDate', e.target.value)}
+                      className="form-input"
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label">End Date</label>
+                    <input
+                      type="month"
+                      value={edu.endDate}
+                      onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
+                      className="form-input"
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label">GPA (optional)</label>
+                    <input
+                      type="text"
+                      value={edu.gpa}
+                      onChange={(e) => updateEducation(edu.id, 'gpa', e.target.value)}
+                      placeholder="3.8"
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+
+                {/* Highlights */}
+                <div>
+                  <label className="form-label">Highlights/Achievements</label>
+                  <div className="space-y-2">
+                    {edu.highlights.map((highlight, hIndex) => (
+                      <div key={hIndex} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={highlight}
+                          onChange={(e) => handleHighlightChange(edu.id, hIndex, e.target.value)}
+                          placeholder="Dean's List, relevant coursework..."
+                          className="form-input flex-1"
+                        />
+                        <button
+                          onClick={() => removeHighlight(edu.id, hIndex)}
+                          className="p-2 text-gray-400 hover:text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => addHighlight(edu.id)}
+                      className="text-sm text-primary-600 hover:text-primary-700"
+                    >
+                      + Add highlight
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+
+        {resume.education.length === 0 && (
+          <p className="text-center text-gray-500 py-8">
+            No education added yet. Click "Add" to get started.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
