@@ -44,9 +44,9 @@ export default function Education() {
         </h2>
         <button
           onClick={addEducation}
-          className="btn-secondary text-sm py-1.5 px-3"
+          className="btn-add"
         >
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="w-4 h-4" />
           Add
         </button>
       </div>
@@ -177,9 +177,10 @@ export default function Education() {
                     ))}
                     <button
                       onClick={() => addHighlight(edu.id)}
-                      className="text-sm text-primary-600 hover:text-primary-700"
+                      className="btn-add-inline"
                     >
-                      + Add highlight
+                      <Plus className="w-3.5 h-3.5" />
+                      Add highlight
                     </button>
                   </div>
                 </div>

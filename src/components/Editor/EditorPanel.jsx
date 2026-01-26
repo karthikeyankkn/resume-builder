@@ -80,9 +80,10 @@ export default function EditorPanel() {
         {/* Add Custom Section Button */}
         <button
           onClick={addCustomSection}
-          className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg
-                     text-gray-500 hover:border-primary-400 hover:text-primary-600
-                     transition-colors flex items-center justify-center gap-2"
+          className="w-full py-3 border-2 border-dashed border-primary-200 rounded-lg
+                     text-primary-500 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50
+                     focus:outline-none focus:ring-2 focus:ring-primary-200
+                     transition-all flex items-center justify-center gap-2 font-medium"
         >
           <Plus className="w-5 h-5" />
           Add Custom Section

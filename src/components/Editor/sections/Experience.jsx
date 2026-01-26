@@ -44,9 +44,9 @@ export default function Experience() {
         </h2>
         <button
           onClick={addExperience}
-          className="btn-secondary text-sm py-1.5 px-3"
+          className="btn-add"
         >
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="w-4 h-4" />
           Add
         </button>
       </div>
@@ -195,9 +195,10 @@ export default function Experience() {
                     ))}
                     <button
                       onClick={() => addHighlight(exp.id)}
-                      className="text-sm text-primary-600 hover:text-primary-700"
+                      className="btn-add-inline"
                     >
-                      + Add achievement
+                      <Plus className="w-3.5 h-3.5" />
+                      Add achievement
                     </button>
                   </div>
                 </div>

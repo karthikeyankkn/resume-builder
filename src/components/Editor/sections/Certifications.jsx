@@ -20,9 +20,9 @@ export default function Certifications() {
         </h2>
         <button
           onClick={addCertification}
-          className="btn-secondary text-sm py-1.5 px-3"
+          className="btn-add"
         >
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="w-4 h-4" />
           Add
         </button>
       </div>

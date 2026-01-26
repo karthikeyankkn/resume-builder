@@ -240,6 +240,12 @@ body {
   border-radius: 0.5rem;
 }
 
+/* custom Css */
+.exportPdfBtn {
+  border-radius: 3px;
+  font-size: 14px;
+}
+
 /* Icon Button */
 .btn-icon {
   padding: 0.5rem;
@@ -290,6 +296,67 @@ body {
 
 .btn-text:active {
   background-color: rgba(37, 99, 235, 0.2);
+}
+
+/* Add Button - Section headers */
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--primary);
+  background-color: var(--color-primary-50);
+  border: 1px solid var(--color-primary-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-add:hover {
+  background-color: var(--color-primary-100);
+  border-color: var(--color-primary-300);
+}
+
+.btn-add:active {
+  background-color: var(--color-primary-200);
+}
+
+.btn-add:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Inline Add Button - For adding items within sections */
+.btn-add-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--primary);
+  background-color: transparent;
+  border: 1px dashed var(--color-primary-300);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-add-inline:hover {
+  background-color: var(--color-primary-50);
+  border-style: solid;
+  border-color: var(--color-primary-400);
+}
+
+.btn-add-inline:active {
+  background-color: var(--color-primary-100);
+}
+
+.btn-add-inline:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
 
 /* Date Input Styling */

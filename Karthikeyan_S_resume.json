@@ -1,0 +1,193 @@
+{
+  "id": "5d5a1fe8-c906-4fb3-a6c8-08163e64258f",
+  "metadata": {
+    "templateId": "modern",
+    "createdAt": "2026-01-25T17:54:46.971Z",
+    "updatedAt": "2026-01-25T18:10:33.967Z",
+    "version": "1.0"
+  },
+  "personalInfo": {
+    "fullName": "Karthikeyan S",
+    "title": "Senior Software Engineer",
+    "email": "connecttokkn@gmail.com",
+    "phone": "+918148303123",
+    "location": "Chennai",
+    "linkedIn": "linkedin.com/in/karthikeyankkn",
+    "github": "github.com/karthikeyankkn",
+    "portfolio": "github.com/karthikeyankkn",
+    "photo": "data:image/jpeg;base64,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",
+    "summary": "Results-driven and detail-oriented Senior Front-End Developer with 9+ years of experience in building scalable, maintainable, and accessible web\napplications. Proficient in React, Angular, Node.js, RESTful APIs, and DevOps tools like Docker and Jenkins. Adept at Agile methodologies, mentoring teams,\nand solving complex technical problems with a user-focused approach."
+  },
+  "experience": [
+    {
+      "id": "8792dc44-5481-4543-86eb-48cb3b32f488",
+      "company": "TNQ tech",
+      "position": "Senior Software Engineer",
+      "location": "Chennai",
+      "startDate": "2022-05",
+      "endDate": "",
+      "current": true,
+      "description": "Developed dynamic on-the-fly pagination systems for publishing platforms\nBuilt and maintained a React + Node.js-based template builder with REST API integration\nServed as Scrum Master, leading sprint planning and retrospectives via Jira\nImplemented CI/CD pipelines using Jenkins; containerised applications with Docker\nAutomated support and QA tasks, reducing manual effort by 30%\nIntroduced peer code review practices; mentored junior developers\nActively contributed to product discovery and team performance feedback loops",
+      "highlights": [
+        ""
+      ]
+    },
+    {
+      "id": "da3626e6-b290-4575-9897-2a58592c9432",
+      "company": "RheinBrücke IT Consulting Pvt Ltd",
+      "position": "Software Engineer",
+      "location": "Chennai",
+      "startDate": "2019-09",
+      "endDate": "2022-05",
+      "current": false,
+      "description": "Built Cordova-based desktop application for weighing systems\nDeveloped UIs with AngularJS and managed data via SQLite\nDesigned and implemented a supply chain management system using Angular & .NET\nResolved complex bugs and production issues; collaborated across teams",
+      "highlights": [
+        ""
+      ]
+    },
+    {
+      "id": "56663f77-6c6c-458f-a19d-583c63648f7d",
+      "company": "Spinircle India IT Pvt Ltd",
+      "position": "Software Engineer",
+      "location": "Chennai",
+      "startDate": "2017-10",
+      "endDate": "2019-09",
+      "current": false,
+      "description": "Worked with Ruby on Rails and AngularJS for full-stack development\nBuilt lead generation tools and digital marketing utilities\nDesigned and maintained websites for clients and internal use\nMentored interns in front-end technologies (HTML, CSS, JS, Bootstrap)",
+      "highlights": [
+        ""
+      ]
+    },
+    {
+      "id": "247e042d-43c9-4d0c-b7ce-373cb4964f26",
+      "company": "Fixnix InfoSec Solutions",
+      "position": "Front-End Developer",
+      "location": "Chennai",
+      "startDate": "2016-09",
+      "endDate": "2017-10",
+      "current": false,
+      "description": "Built and managed marketing websites using WordPress Contributed to\nAngularJS-based development using RESTful APIs\nTrained junior developers and maintained strong independent productivity",
+      "highlights": [
+        ""
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": "5b7b10bb-53cd-4589-b966-0068d0a1e91b",
+      "institution": "Panimalar Engineering College",
+      "degree": "B.Tech",
+      "field": "Information Technology",
+      "startDate": "2012-08",
+      "endDate": "2015-05",
+      "gpa": "",
+      "highlights": [
+        "Participated in lot of symposiums and cultural events"
+      ]
+    }
+  ],
+  "skills": {
+    "categories": [
+      {
+        "id": "7db7fcd6-ac44-4458-828e-8951dece04cb",
+        "name": "Programming Languages",
+        "items": [
+          "Javascript",
+          "Ruby"
+        ]
+      },
+      {
+        "id": "4275fb35-4ff6-4d51-a345-9f8f65a7cf9b",
+        "name": "Frameworks & Libraries",
+        "items": [
+          "React",
+          "Node.js",
+          "Express",
+          "Angular",
+          "Angular Js",
+          "Bootstap",
+          "jQuery"
+        ]
+      },
+      {
+        "id": "37611db1-9724-46e3-8f3a-cb37608d0216",
+        "name": "Tools & Platforms",
+        "items": [
+          "AWS",
+          "Docker",
+          "Git",
+          "PostgreSQL",
+          "Redis"
+        ]
+      }
+    ]
+  },
+  "projects": [
+    {
+      "id": "4e034968-827a-48ff-bbcf-22aefad7838e",
+      "name": "Resume builder",
+      "description": "Online resume builder application without using Database for opensource.",
+      "technologies": [
+        "React",
+        "Html",
+        "css",
+        "js"
+      ],
+      "link": "https://github.com/karthikeyankkn/resume-builder",
+      "highlights": [
+        "1.2K+ GitHub stars",
+        "Featured in JavaScript Weekly"
+      ]
+    },
+    {
+      "id": "c42e1410-8109-4b97-9cd7-e352d6ea0310",
+      "name": "Hand cricket",
+      "description": "Online hand cricket game to play with single and multiplayer option. Using web socket as base.",
+      "technologies": [],
+      "link": "",
+      "highlights": []
+    }
+  ],
+  "certifications": [
+    {
+      "id": "198922ac-20bf-411d-8129-74b17b620603",
+      "name": "AWS Solutions Architect Professional",
+      "issuer": "Amazon Web Services",
+      "date": "2023-05",
+      "credentialId": "AWS-SAP-123456",
+      "link": ""
+    },
+    {
+      "id": "f804edf6-936d-4797-9514-2f005f5a5a1c",
+      "name": "Google Cloud Professional Developer",
+      "issuer": "Google Cloud",
+      "date": "2022-11",
+      "credentialId": "GCP-PD-789012",
+      "link": ""
+    },
+    {
+      "id": "83888e6a-8310-480d-9462-0b37cdb24315",
+      "name": "Advanced Javascript ",
+      "issuer": "Udemy",
+      "date": "",
+      "credentialId": "",
+      "link": ""
+    },
+    {
+      "id": "02c8462b-0131-40d2-8a57-819e9c0f459f",
+      "name": "React",
+      "issuer": "Udemy",
+      "date": "",
+      "credentialId": "",
+      "link": ""
+    }
+  ],
+  "customSections": [
+    {
+      "id": "5fd0a5bc-c662-4a1b-821c-58e7db752cf0",
+      "title": "Custom Section",
+      "type": "list",
+      "content": []
+    }
+  ]
+}

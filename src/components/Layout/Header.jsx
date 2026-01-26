@@ -157,7 +157,7 @@ export default function Header() {
         {/* Export Button */}
         <button
           onClick={openExportModal}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center gap-2 p-2 exportPdfBtn"
           title="Export PDF (Ctrl+E)"
         >
           <Download className="w-4 h-4" />
@@ -167,3 +167,5 @@ export default function Header() {
     </header>
   );
 }
+
+
