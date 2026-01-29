@@ -1,4 +1,4 @@
-import { Award, Plus, Trash2, ChevronDown, ChevronUp, Link } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Link } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 import MonthPicker from '../../common/MonthPicker';
@@ -13,17 +13,13 @@ export default function Certifications() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <Award className="w-5 h-5 text-primary-600" />
-          Certifications
-        </h2>
+      <div className="flex justify-end mb-3">
         <button
           onClick={addCertification}
           className="btn-add"
         >
           <Plus className="w-4 h-4" />
-          Add
+          Add Certification
         </button>
       </div>
 

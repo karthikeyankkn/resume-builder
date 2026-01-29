@@ -5,6 +5,9 @@ export const useUIStore = create((set, get) => ({
   activeSection: null,
   activeSectionId: null,
 
+  // Expanded accordion section (null means all collapsed)
+  expandedSection: 'personalInfo',
+
   // Preview zoom level
   zoom: 75,
 
@@ -13,6 +16,10 @@ export const useUIStore = create((set, get) => ({
   showExportModal: false,
   showTemplateBuilder: false,
   showImportModal: false,
+  showTemplateEditor: false,
+
+  // Template being edited
+  editingTemplateId: null,
 
   // Section refs for scrolling
   sectionRefs: {},
@@ -64,6 +71,15 @@ export const useUIStore = create((set, get) => ({
   openImportModal: () => set({ showImportModal: true }),
   closeImportModal: () => set({ showImportModal: false }),
 
+  openTemplateEditor: (templateId) => set({ showTemplateEditor: true, editingTemplateId: templateId }),
+  closeTemplateEditor: () => set({ showTemplateEditor: false, editingTemplateId: null }),
+
   // Clear active section
-  clearActiveSection: () => set({ activeSection: null, activeSectionId: null })
+  clearActiveSection: () => set({ activeSection: null, activeSectionId: null }),
+
+  // Accordion controls
+  setExpandedSection: (section) => set({ expandedSection: section }),
+  toggleSection: (section) => set((state) => ({
+    expandedSection: state.expandedSection === section ? null : section
+  }))
 }));

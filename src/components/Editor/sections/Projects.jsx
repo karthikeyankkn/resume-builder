@@ -1,4 +1,4 @@
-import { FolderGit2, Plus, Trash2, ChevronDown, ChevronUp, X, Link } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, X, Link } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 
@@ -55,17 +55,13 @@ export default function Projects() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <FolderGit2 className="w-5 h-5 text-primary-600" />
-          Projects
-        </h2>
+      <div className="flex justify-end mb-3">
         <button
           onClick={addProject}
           className="btn-add"
         >
           <Plus className="w-4 h-4" />
-          Add
+          Add Project
         </button>
       </div>
 

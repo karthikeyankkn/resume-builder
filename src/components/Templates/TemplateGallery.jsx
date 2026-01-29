@@ -1,30 +1,347 @@
-import { X, Check, Trash2, Copy, ImagePlus, Palette } from 'lucide-react';
+import { X, Check, Trash2, Copy, ImagePlus, Palette, Pencil } from 'lucide-react';
 import { useUIStore } from '../../store/uiStore';
 import { useTemplateStore } from '../../store/templateStore';
 import { useResumeStore } from '../../store/resumeStore';
 
+// Helper to determine if a color is dark
+function isDarkColor(color) {
+  if (!color) return false;
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness < 128;
+}
+
+// Mini template preview component that accurately represents the template layout
+function TemplatePreview({ template }) {
+  const { colors, fonts } = template.styles;
+  const { layout } = template;
+  const hasSidebar = layout?.sidebar?.enabled;
+  const sidebarPosition = layout?.sidebar?.position || 'right';
+  const headerStyle = layout?.headerStyle || 'centered';
+
+  // Detect dark backgrounds
+  const isDarkBackground = isDarkColor(colors.background);
+  const isDarkHeader = isDarkColor(colors.headerBg);
+  const placeholderColor = isDarkBackground ? 'rgba(255,255,255,0.15)' : '#e5e7eb';
+
+  // Header section
+  const renderHeader = () => {
+    const isColoredHeader = colors.headerBg && colors.headerBg !== '#ffffff' && colors.headerBg !== colors.background;
+    const headerTextColor = (isColoredHeader || isDarkHeader) ? '#ffffff' : colors.text;
+    const headerSubColor = (isColoredHeader || isDarkHeader) ? 'rgba(255,255,255,0.8)' : colors.primary;
+
+    return (
+      <div
+        style={{
+          backgroundColor: colors.headerBg || colors.background,
+          padding: '8px 10px',
+          textAlign: headerStyle === 'centered' ? 'center' : 'left',
+          marginBottom: '6px'
+        }}
+      >
+        <div
+          style={{
+            fontFamily: fonts.heading,
+            fontWeight: 700,
+            fontSize: '12px',
+            color: headerTextColor,
+            marginBottom: '2px'
+          }}
+        >
+          John Doe
+        </div>
+        <div
+          style={{
+            fontSize: '6px',
+            color: headerSubColor,
+            marginBottom: '3px'
+          }}
+        >
+          Software Engineer
+        </div>
+        <div
+          style={{
+            fontSize: '4px',
+            color: (isColoredHeader || isDarkHeader) ? 'rgba(255,255,255,0.6)' : colors.secondary,
+            display: 'flex',
+            justifyContent: headerStyle === 'centered' ? 'center' : 'flex-start',
+            gap: '6px'
+          }}
+        >
+          <span>email@example.com</span>
+          <span>•</span>
+          <span>(555) 123-4567</span>
+        </div>
+      </div>
+    );
+  };
+
+  // Section title
+  const renderSectionTitle = (title) => (
+    <div
+      style={{
+        fontSize: '5px',
+        fontWeight: 600,
+        color: colors.primary,
+        textTransform: 'uppercase',
+        letterSpacing: '0.3px',
+        marginBottom: '3px',
+        paddingBottom: '2px',
+        borderBottom: `1px solid ${colors.primary}`
+      }}
+    >
+      {title}
+    </div>
+  );
+
+  // Content placeholder lines
+  const renderContentLines = (count = 3, widths = ['100%', '85%', '70%']) => (
+    <div style={{ marginBottom: '5px' }}>
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          style={{
+            height: '2px',
+            backgroundColor: placeholderColor,
+            borderRadius: '1px',
+            marginBottom: '2px',
+            width: widths[i % widths.length]
+          }}
+        />
+      ))}
+    </div>
+  );
+
+  // Experience item
+  const renderExperienceItem = () => (
+    <div style={{ marginBottom: '5px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1px' }}>
+        <div>
+          <div style={{ fontSize: '5px', fontWeight: 600, color: colors.text }}>Position Title</div>
+          <div style={{ fontSize: '4px', color: colors.primary }}>Company Name</div>
+        </div>
+        <div style={{ fontSize: '4px', color: colors.secondary }}>2023</div>
+      </div>
+      {renderContentLines(2, ['90%', '75%'])}
+    </div>
+  );
+
+  // Skill category
+  const renderSkillItem = () => (
+    <div style={{ marginBottom: '3px' }}>
+      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+        {['React', 'Node', 'Python'].map((skill) => (
+          <span
+            key={skill}
+            style={{
+              fontSize: '4px',
+              backgroundColor: `${colors.primary}15`,
+              color: colors.primary,
+              padding: '1px 3px',
+              borderRadius: '2px'
+            }}
+          >
+            {skill}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+
+  // Main content sections
+  const renderMainContent = () => (
+    <div style={{ flex: 1 }}>
+      <div style={{ marginBottom: '6px' }}>
+        {renderSectionTitle('Experience')}
+        {renderExperienceItem()}
+        {renderExperienceItem()}
+      </div>
+      <div style={{ marginBottom: '6px' }}>
+        {renderSectionTitle('Education')}
+        <div style={{ marginBottom: '3px' }}>
+          <div style={{ fontSize: '5px', fontWeight: 600, color: colors.text }}>Bachelor's Degree</div>
+          <div style={{ fontSize: '4px', color: colors.primary }}>University Name</div>
+        </div>
+      </div>
+      {!hasSidebar && (
+        <div>
+          {renderSectionTitle('Skills')}
+          {renderSkillItem()}
+        </div>
+      )}
+    </div>
+  );
+
+  // Sidebar content
+  const renderSidebar = () => (
+    <div
+      style={{
+        width: '35%',
+        backgroundColor: colors.sidebarBg || '#f8fafc',
+        padding: '5px',
+        borderRadius: '2px'
+      }}
+    >
+      <div style={{ marginBottom: '5px' }}>
+        {renderSectionTitle('Skills')}
+        {renderSkillItem()}
+      </div>
+      <div>
+        {renderSectionTitle('Certifications')}
+        <div style={{ fontSize: '4px', color: colors.text }}>AWS Certified</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        backgroundColor: colors.background,
+        fontFamily: fonts.body,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      {renderHeader()}
+      <div style={{ padding: '0 8px 8px', flex: 1 }}>
+        {hasSidebar ? (
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {sidebarPosition === 'left' && renderSidebar()}
+            {renderMainContent()}
+            {sidebarPosition === 'right' && renderSidebar()}
+          </div>
+        ) : (
+          renderMainContent()
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Template card component
+function TemplateCard({ template, isActive, onSelect, onDuplicate, onDelete, onEdit, showDelete = false }) {
+  return (
+    <div
+      onClick={onSelect}
+      className={`template-card p-3 bg-white ${isActive ? 'selected' : ''}`}
+    >
+      {/* Template Preview */}
+      <div
+        className="aspect-[1/1.414] rounded-md mb-3 relative overflow-hidden border border-gray-200 shadow-sm"
+      >
+        <TemplatePreview template={template} />
+
+        {/* Selected indicator */}
+        {isActive && (
+          <div className="absolute top-2 right-2 w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center shadow-md">
+            <Check className="w-4 h-4 text-white" />
+          </div>
+        )}
+
+        {/* AI Generated badge */}
+        {template.createdFrom === 'screenshot' && (
+          <div className="absolute bottom-2 left-2 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">
+            AI Generated
+          </div>
+        )}
+
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-primary-600/0 hover:bg-primary-600/5 transition-colors" />
+      </div>
+
+      {/* Template Info */}
+      <div className="mb-2">
+        <h4 className="font-semibold text-sm text-gray-900">{template.name}</h4>
+        <p className="text-xs text-gray-500 line-clamp-1">{template.description}</p>
+      </div>
+
+      {/* Layout badge */}
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">
+          {template.layout.columns === 2 ? '2-Column' : 'Single Column'}
+        </span>
+        {template.layout.sidebar?.enabled && (
+          <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">
+            Sidebar
+          </span>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-1 pt-2 border-t border-gray-100">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+          className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+          title="Edit"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+          <span>Edit</span>
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDuplicate();
+          }}
+          className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+          title="Duplicate"
+        >
+          <Copy className="w-3.5 h-3.5" />
+          <span>Duplicate</span>
+        </button>
+        {showDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+            title="Delete"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Delete</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function TemplateGallery() {
-  const { closeTemplateGallery, openTemplateBuilder } = useUIStore();
+  const { closeTemplateGallery, openTemplateBuilder, openTemplateEditor } = useUIStore();
   const { getAllTemplates, activeTemplate, setActiveTemplate, deleteCustomTemplate, duplicateTemplate } = useTemplateStore();
   const { setTemplate } = useResumeStore();
 
   const templates = getAllTemplates();
+  const builtInTemplates = templates.filter((t) => !t.isCustom);
+  const customTemplates = templates.filter((t) => t.isCustom);
 
   const handleSelectTemplate = (templateId) => {
     setActiveTemplate(templateId);
     setTemplate(templateId);
   };
 
-  const handleDelete = (e, templateId) => {
-    e.stopPropagation();
+  const handleDelete = (templateId) => {
     if (confirm('Delete this custom template?')) {
       deleteCustomTemplate(templateId);
     }
   };
 
-  const handleDuplicate = (e, templateId) => {
-    e.stopPropagation();
+  const handleDuplicate = (templateId) => {
     duplicateTemplate(templateId);
+  };
+
+  const handleEdit = (templateId) => {
+    closeTemplateGallery();
+    openTemplateEditor(templateId);
   };
 
   const handleCreateFromScreenshot = () => {
@@ -35,32 +352,35 @@ export default function TemplateGallery() {
   return (
     <div className="modal-overlay" onClick={closeTemplateGallery}>
       <div
-        className="modal-content w-full max-w-4xl mx-4"
+        className="modal-content w-full max-w-5xl mx-4 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Palette className="w-5 h-5 text-primary-600" />
-            Template Gallery
-          </h2>
+        <div className="flex items-center justify-between p-5 border-b bg-gray-50 rounded-t-xl">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+              <Palette className="w-6 h-6 text-primary-600" />
+              Template Gallery
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">Choose a template that fits your style</p>
+          </div>
           <button
             onClick={closeTemplateGallery}
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto flex-1">
           {/* Create from Screenshot Button */}
-          <div className="mb-6">
+          <div className="mb-8">
             <button
               onClick={handleCreateFromScreenshot}
-              className="w-full py-4 border-2 border-dashed border-gray-300 rounded-lg
-                         text-gray-600 hover:border-primary-400 hover:text-primary-600
-                         transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 border-2 border-dashed border-primary-200 rounded-xl
+                         text-primary-600 hover:border-primary-400 hover:bg-primary-50
+                         transition-all flex items-center justify-center gap-3 font-medium"
             >
               <ImagePlus className="w-5 h-5" />
               Create Template from Screenshot
@@ -68,153 +388,57 @@ export default function TemplateGallery() {
           </div>
 
           {/* Built-in Templates */}
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Built-in Templates</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-            {templates.filter((t) => !t.isCustom).map((template) => (
-              <div
-                key={template.id}
-                onClick={() => handleSelectTemplate(template.id)}
-                className={`template-card p-3 ${activeTemplate === template.id ? 'selected' : ''}`}
-              >
-                {/* Template Preview */}
-                <div
-                  className="aspect-[1/1.414] rounded mb-2 relative overflow-hidden"
-                  style={{ backgroundColor: template.styles.colors.background }}
-                >
-                  {/* Mini preview */}
-                  <div className="p-2 transform scale-[0.15] origin-top-left w-[666%] h-[666%]">
-                    <div className="text-center mb-4">
-                      <div
-                        className="font-bold text-2xl"
-                        style={{ color: template.styles.colors.text }}
-                      >
-                        John Doe
-                      </div>
-                      <div
-                        className="text-sm"
-                        style={{ color: template.styles.colors.primary }}
-                      >
-                        Software Engineer
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div
-                        className="h-1 rounded"
-                        style={{ backgroundColor: template.styles.colors.primary, width: '60%' }}
-                      />
-                      <div className="space-y-1">
-                        <div className="h-0.5 bg-gray-200 rounded" />
-                        <div className="h-0.5 bg-gray-200 rounded w-4/5" />
-                        <div className="h-0.5 bg-gray-200 rounded w-3/5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Selected indicator */}
-                  {activeTemplate === template.id && (
-                    <div className="absolute top-2 right-2 w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                </div>
-
-                {/* Template Info */}
-                <div>
-                  <h4 className="font-medium text-sm text-gray-900">{template.name}</h4>
-                  <p className="text-xs text-gray-500 line-clamp-1">{template.description}</p>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-1 mt-2">
-                  <button
-                    onClick={(e) => handleDuplicate(e, template.id)}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                    title="Duplicate"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="mb-8">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 bg-primary-500 rounded-full"></span>
+              Built-in Templates
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {builtInTemplates.map((template) => (
+                <TemplateCard
+                  key={template.id}
+                  template={template}
+                  isActive={activeTemplate === template.id}
+                  onSelect={() => handleSelectTemplate(template.id)}
+                  onDuplicate={() => handleDuplicate(template.id)}
+                  onEdit={() => handleEdit(template.id)}
+                  showDelete={false}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Custom Templates */}
-          {templates.filter((t) => t.isCustom).length > 0 && (
-            <>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Custom Templates</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {templates.filter((t) => t.isCustom).map((template) => (
-                  <div
+          {customTemplates.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                Custom Templates
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                {customTemplates.map((template) => (
+                  <TemplateCard
                     key={template.id}
-                    onClick={() => handleSelectTemplate(template.id)}
-                    className={`template-card p-3 ${activeTemplate === template.id ? 'selected' : ''}`}
-                  >
-                    {/* Template Preview */}
-                    <div
-                      className="aspect-[1/1.414] rounded mb-2 relative overflow-hidden"
-                      style={{ backgroundColor: template.styles.colors.background }}
-                    >
-                      <div className="p-2 transform scale-[0.15] origin-top-left w-[666%] h-[666%]">
-                        <div className="text-center mb-4">
-                          <div
-                            className="font-bold text-2xl"
-                            style={{ color: template.styles.colors.text }}
-                          >
-                            John Doe
-                          </div>
-                          <div
-                            className="text-sm"
-                            style={{ color: template.styles.colors.primary }}
-                          >
-                            Software Engineer
-                          </div>
-                        </div>
-                      </div>
-
-                      {activeTemplate === template.id && (
-                        <div className="absolute top-2 right-2 w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
-                          <Check className="w-4 h-4 text-white" />
-                        </div>
-                      )}
-
-                      {template.createdFrom === 'screenshot' && (
-                        <div className="absolute bottom-2 left-2 text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">
-                          AI Generated
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-900">{template.name}</h4>
-                      <p className="text-xs text-gray-500 line-clamp-1">{template.description}</p>
-                    </div>
-
-                    <div className="flex gap-1 mt-2">
-                      <button
-                        onClick={(e) => handleDuplicate(e, template.id)}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                        title="Duplicate"
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={(e) => handleDelete(e, template.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
+                    template={template}
+                    isActive={activeTemplate === template.id}
+                    onSelect={() => handleSelectTemplate(template.id)}
+                    onDuplicate={() => handleDuplicate(template.id)}
+                    onEdit={() => handleEdit(template.id)}
+                    onDelete={() => handleDelete(template.id)}
+                    showDelete={true}
+                  />
                 ))}
               </div>
-            </>
+            </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 p-4 border-t bg-gray-50">
-          <button onClick={closeTemplateGallery} className="btn-primary">
+        <div className="flex justify-between items-center gap-3 p-5 border-t bg-gray-50 rounded-b-xl">
+          <p className="text-sm text-gray-500">
+            {templates.length} templates available
+          </p>
+          <button onClick={closeTemplateGallery} className="btn btn-primary px-6">
             Done
           </button>
         </div>

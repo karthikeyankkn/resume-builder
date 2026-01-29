@@ -2,6 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useUIStore } from '../store/uiStore';
 import { useResumeStore } from '../store/resumeStore';
 import { useHistoryStore } from '../store/historyStore';
+import { useThemeStore } from '../store/themeStore';
 
 export function useKeyboardShortcuts() {
   const {
@@ -15,6 +16,7 @@ export function useKeyboardShortcuts() {
 
   const { resume, saveCurrentResume } = useResumeStore();
   const { undo, redo, canUndo, canRedo, pushState } = useHistoryStore();
+  const { toggleTheme } = useThemeStore();
 
   // Store current state for undo
   const storeState = useCallback(() => {
@@ -88,6 +90,15 @@ export function useKeyboardShortcuts() {
       return;
     }
 
+    // Cmd/Ctrl + Shift + L - Toggle Theme
+    if (cmdKey && e.shiftKey && e.key === 'l') {
+      e.preventDefault();
+      toggleTheme();
+      const isDark = useThemeStore.getState().getEffectiveTheme() === 'dark';
+      showToast(isDark ? 'Dark Mode' : 'Light Mode');
+      return;
+    }
+
     // Cmd/Ctrl + Plus - Zoom In
     if (cmdKey && (e.key === '=' || e.key === '+')) {
       e.preventDefault();
@@ -126,7 +137,7 @@ export function useKeyboardShortcuts() {
   }, [
     resume, undo, redo, canUndo, canRedo, restoreState, storeState,
     openExportModal, openTemplateGallery, openImportModal,
-    zoomIn, zoomOut, setZoom, saveCurrentResume
+    zoomIn, zoomOut, setZoom, saveCurrentResume, toggleTheme
   ]);
 
   // Track changes for undo history
@@ -151,6 +162,8 @@ function showToast(message) {
   const existing = document.querySelector('.keyboard-toast');
   if (existing) existing.remove();
 
+  const isDark = document.documentElement.classList.contains('dark');
+
   const toast = document.createElement('div');
   toast.className = 'keyboard-toast';
   toast.style.cssText = `
@@ -158,7 +171,7 @@ function showToast(message) {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: #1e293b;
+    background: ${isDark ? '#334155' : '#1e293b'};
     color: white;
     padding: 8px 16px;
     border-radius: 6px;
@@ -181,6 +194,7 @@ function showShortcutsHelp() {
 
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
   const cmd = isMac ? '⌘' : 'Ctrl';
+  const isDark = document.documentElement.classList.contains('dark');
 
   const shortcuts = [
     { keys: `${cmd} + S`, action: 'Save resume' },
@@ -189,6 +203,7 @@ function showShortcutsHelp() {
     { keys: `${cmd} + E`, action: 'Export PDF' },
     { keys: `${cmd} + T`, action: 'Templates' },
     { keys: `${cmd} + I`, action: 'Import' },
+    { keys: `${cmd} + Shift + L`, action: 'Toggle theme' },
     { keys: `${cmd} + +`, action: 'Zoom in' },
     { keys: `${cmd} + -`, action: 'Zoom out' },
     { keys: `${cmd} + 0`, action: 'Reset zoom' },
@@ -201,7 +216,7 @@ function showShortcutsHelp() {
   modal.style.cssText = `
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, ${isDark ? '0.7' : '0.5'});
     display: flex;
     align-items: center;
     justify-content: center;
@@ -210,34 +225,36 @@ function showShortcutsHelp() {
 
   modal.innerHTML = `
     <div style="
-      background: white;
+      background: ${isDark ? '#1e293b' : 'white'};
       border-radius: 12px;
       padding: 24px;
       max-width: 400px;
       width: 90%;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      border: ${isDark ? '1px solid #334155' : 'none'};
     ">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #1e293b;">Keyboard Shortcuts</h3>
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: ${isDark ? '#f1f5f9' : '#1e293b'};">Keyboard Shortcuts</h3>
         <button onclick="this.closest('.shortcuts-modal').remove()" style="
           background: none;
           border: none;
           cursor: pointer;
           padding: 4px;
-          color: #64748b;
+          color: ${isDark ? '#94a3b8' : '#64748b'};
+          font-size: 18px;
         ">✕</button>
       </div>
       <div style="display: grid; gap: 8px;">
         ${shortcuts.map(s => `
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
-            <span style="color: #64748b; font-size: 14px;">${s.action}</span>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid ${isDark ? '#334155' : '#f1f5f9'};">
+            <span style="color: ${isDark ? '#94a3b8' : '#64748b'}; font-size: 14px;">${s.action}</span>
             <kbd style="
-              background: #f1f5f9;
+              background: ${isDark ? '#334155' : '#f1f5f9'};
               padding: 4px 8px;
               border-radius: 4px;
               font-family: monospace;
               font-size: 12px;
-              color: #1e293b;
+              color: ${isDark ? '#f1f5f9' : '#1e293b'};
             ">${s.keys}</kbd>
           </div>
         `).join('')}

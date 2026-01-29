@@ -175,6 +175,110 @@ const builtInTemplates = [
         padding: '24px'
       }
     }
+  },
+  {
+    id: 'frontend-dev',
+    name: 'Frontend Developer',
+    description: 'Modern tech aesthetic with skills-focused layout for developers',
+    thumbnail: null,
+    isCustom: false,
+    createdFrom: 'preset',
+    layout: {
+      columns: 2,
+      headerStyle: 'left',
+      sectionOrder: ['personalInfo', 'summary', 'experience', 'projects', 'education'],
+      sidebar: { enabled: true, position: 'right', sections: ['skills', 'certifications'] }
+    },
+    styles: {
+      colors: {
+        primary: '#06b6d4',
+        secondary: '#94a3b8',
+        accent: '#a855f7',
+        text: '#f1f5f9',
+        background: '#ffffff',
+        headerBg: '#0f172a',
+        sidebarBg: '#f0fdfa'
+      },
+      fonts: {
+        heading: 'Inter',
+        body: 'Inter',
+        sizes: { name: '26px', title: '13px', sectionTitle: '12px', body: '10px' }
+      },
+      spacing: {
+        sectionGap: '18px',
+        itemGap: '10px',
+        padding: '32px'
+      }
+    }
+  },
+  {
+    id: 'developer-dark',
+    name: 'Dev Dark Mode',
+    description: 'Code editor inspired dark theme for tech professionals',
+    thumbnail: null,
+    isCustom: false,
+    createdFrom: 'preset',
+    layout: {
+      columns: 1,
+      headerStyle: 'left',
+      sectionOrder: ['personalInfo', 'summary', 'skills', 'experience', 'projects', 'education', 'certifications'],
+      sidebar: { enabled: false, position: 'left', sections: [] }
+    },
+    styles: {
+      colors: {
+        primary: '#22d3ee',
+        secondary: '#a1a1aa',
+        accent: '#f472b6',
+        text: '#e4e4e7',
+        background: '#18181b',
+        headerBg: '#09090b'
+      },
+      fonts: {
+        heading: 'Inter',
+        body: 'Inter',
+        sizes: { name: '28px', title: '14px', sectionTitle: '13px', body: '11px' }
+      },
+      spacing: {
+        sectionGap: '20px',
+        itemGap: '12px',
+        padding: '36px'
+      }
+    }
+  },
+  {
+    id: 'startup-modern',
+    name: 'Startup Modern',
+    description: 'Fresh gradient style perfect for startups and modern companies',
+    thumbnail: null,
+    isCustom: false,
+    createdFrom: 'preset',
+    layout: {
+      columns: 2,
+      headerStyle: 'centered',
+      sectionOrder: ['personalInfo', 'summary', 'experience', 'projects'],
+      sidebar: { enabled: true, position: 'left', sections: ['skills', 'education', 'certifications'] }
+    },
+    styles: {
+      colors: {
+        primary: '#8b5cf6',
+        secondary: '#71717a',
+        accent: '#f97316',
+        text: '#18181b',
+        background: '#ffffff',
+        headerBg: '#8b5cf6',
+        sidebarBg: '#faf5ff'
+      },
+      fonts: {
+        heading: 'Inter',
+        body: 'Inter',
+        sizes: { name: '28px', title: '13px', sectionTitle: '12px', body: '10px' }
+      },
+      spacing: {
+        sectionGap: '18px',
+        itemGap: '10px',
+        padding: '32px'
+      }
+    }
   }
 ];
 

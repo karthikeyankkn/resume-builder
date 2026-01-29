@@ -264,6 +264,7 @@ export default function ResumePreview() {
   const skills = resume.skills || { categories: [] };
   const projects = resume.projects || [];
   const certifications = resume.certifications || [];
+  const customSections = resume.customSections || [];
 
   // Render section title
   const renderSectionTitle = (title) => (
@@ -429,6 +430,45 @@ export default function ResumePreview() {
     </ClickableRegion>
   );
 
+  // Render Custom Sections
+  const renderCustomSections = () => (
+    <>
+      {customSections.map((section) => (
+        <div key={section.id} style={styles.section} className="resume-section">
+          {renderSectionTitle(section.title)}
+          {section.type === 'text' ? (
+            <div style={styles.summary}>
+              {section.content?.[0]?.text || ''}
+            </div>
+          ) : section.type === 'grid' ? (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+              {(section.content || []).filter(item => item.text).map((item) => {
+                const [label, value] = item.text.includes(':')
+                  ? item.text.split(':').map(s => s.trim())
+                  : [item.text, ''];
+                return (
+                  <div key={item.id} style={{ display: 'flex', gap: '4px' }}>
+                    <span style={{ fontWeight: 500, fontSize: '8px', color: colors?.text }}>{label}</span>
+                    {value && <span style={{ fontSize: '8px', color: colors?.secondary }}>{value}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div style={styles.bulletList}>
+              {(section.content || []).filter(item => item.text).map((item) => (
+                <div key={item.id} style={styles.bulletItem}>
+                  <span style={styles.bullet}>•</span>
+                  <span style={styles.bulletText}>{item.text}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </>
+  );
+
   // Get sections for main content (excluding sidebar sections)
   const renderMainSections = () => {
     const sections = {
@@ -528,6 +568,7 @@ export default function ResumePreview() {
           )}
           <div style={{ flex: 1 }}>
             {renderMainSections()}
+            {customSections.length > 0 && renderCustomSections()}
           </div>
           {sidebarPosition === 'right' && (
             <div style={{ ...styles.sidebar, width: '30%' }}>
@@ -536,7 +577,10 @@ export default function ResumePreview() {
           )}
         </div>
       ) : (
-        <div>{renderMainSections()}</div>
+        <div>
+          {renderMainSections()}
+          {customSections.length > 0 && renderCustomSections()}
+        </div>
       )}
     </div>
   );

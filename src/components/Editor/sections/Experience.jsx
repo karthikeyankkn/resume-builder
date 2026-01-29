@@ -1,4 +1,4 @@
-import { Briefcase, Plus, Trash2, GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 import MonthPicker from '../../common/MonthPicker';
@@ -37,17 +37,13 @@ export default function Experience() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <Briefcase className="w-5 h-5 text-primary-600" />
-          Work Experience
-        </h2>
+      <div className="flex justify-end mb-3">
         <button
           onClick={addExperience}
           className="btn-add"
         >
           <Plus className="w-4 h-4" />
-          Add
+          Add Experience
         </button>
       </div>
 

@@ -54,9 +54,9 @@ export default function PreviewPanel() {
   }, [resume, template, calculatePages]);
 
   return (
-    <div className="h-full flex flex-col bg-gray-100">
+    <div className="h-full flex flex-col bg-gray-100 transition-colors">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 transition-colors">
         <span className="text-sm text-gray-600">
           Preview
         </span>
@@ -97,7 +97,7 @@ export default function PreviewPanel() {
       </div>
 
       {/* Preview Container - Shows multiple A4 pages like PDF viewer */}
-      <div className="flex-1 overflow-auto p-6 bg-gray-300">
+      <div className="flex-1 overflow-auto p-6 bg-gray-300 dark:bg-gray-800 transition-colors">
         <div
           className="flex flex-col items-center gap-6"
           style={{
@@ -169,7 +169,7 @@ export default function PreviewPanel() {
       </div>
 
       {/* Status Bar */}
-      <div className="px-4 py-2 bg-white border-t border-gray-200 text-xs text-gray-500 flex items-center justify-between">
+      <div className="px-4 py-2 bg-white border-t border-gray-200 text-xs text-gray-500 flex items-center justify-between transition-colors">
         <span>A4 (210 × 297 mm) • {pageCount} {pageCount === 1 ? 'page' : 'pages'}</span>
         <span className="flex items-center gap-1">
           <span className="w-2 h-2 bg-green-500 rounded-full"></span>

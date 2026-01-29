@@ -1,16 +1,19 @@
-import { FileText, Download, Layout, Upload, RotateCcw, Save, Undo2, Redo2 } from 'lucide-react';
+import { FileText, Download, Layout, Upload, RotateCcw, Save, Undo2, Redo2, Sun, Moon, Monitor } from 'lucide-react';
 import { useUIStore } from '../../store/uiStore';
 import { useResumeStore } from '../../store/resumeStore';
 import { useTemplateStore } from '../../store/templateStore';
 import { useHistoryStore } from '../../store/historyStore';
+import { useThemeStore } from '../../store/themeStore';
 
 export default function Header() {
   const { openTemplateGallery, openExportModal, openImportModal } = useUIStore();
   const { resume, saveCurrentResume, resetResume } = useResumeStore();
   const { getCurrentTemplate } = useTemplateStore();
   const { undo, redo, canUndo, canRedo, pushState } = useHistoryStore();
+  const { theme, toggleTheme, cycleTheme, getEffectiveTheme } = useThemeStore();
 
   const currentTemplate = getCurrentTemplate();
+  const effectiveTheme = getEffectiveTheme();
 
   const handleSave = () => {
     pushState(JSON.stringify(resume));
@@ -56,7 +59,7 @@ export default function Header() {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: #059669;
+      background: ${effectiveTheme === 'dark' ? '#10b981' : '#059669'};
       color: white;
       padding: 10px 20px;
       border-radius: 8px;
@@ -70,8 +73,20 @@ export default function Header() {
     setTimeout(() => toast.remove(), 2000);
   };
 
+  const getThemeIcon = () => {
+    if (theme === 'system') return <Monitor className="w-4 h-4" />;
+    if (theme === 'dark') return <Moon className="w-4 h-4" />;
+    return <Sun className="w-4 h-4" />;
+  };
+
+  const getThemeLabel = () => {
+    if (theme === 'system') return 'System';
+    if (theme === 'dark') return 'Dark';
+    return 'Light';
+  };
+
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
+    <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm transition-colors">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 bg-primary-600 rounded-lg flex items-center justify-center">
@@ -85,6 +100,18 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-1">
+        {/* Theme Toggle */}
+        <button
+          onClick={cycleTheme}
+          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
+          title={`Theme: ${getThemeLabel()} (Click to change)`}
+        >
+          {getThemeIcon()}
+          <span className="hidden md:inline text-sm">{getThemeLabel()}</span>
+        </button>
+
+        <div className="h-6 w-px bg-gray-200 mx-1" />
+
         {/* Undo/Redo */}
         <button
           onClick={handleUndo}
@@ -167,5 +194,3 @@ export default function Header() {
     </header>
   );
 }
-
-
