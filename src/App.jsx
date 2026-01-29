@@ -6,6 +6,7 @@ import PreviewPanel from './components/Preview/PreviewPanel';
 import { useUIStore } from './store/uiStore';
 import { useThemeStore } from './store/themeStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import ToastProvider from './components/common/ToastProvider';
 
 // Lazy load modals for better performance
 const TemplateGallery = lazy(() => import('./components/Templates/TemplateGallery'));
@@ -13,6 +14,7 @@ const ExportModal = lazy(() => import('./components/Export/ExportModal'));
 const TemplateBuilder = lazy(() => import('./components/TemplateBuilder/TemplateBuilder'));
 const TemplateEditor = lazy(() => import('./components/TemplateBuilder/TemplateEditor'));
 const ImportModal = lazy(() => import('./components/Editor/ImportModal'));
+const ShortcutsHelpModal = lazy(() => import('./components/common/ShortcutsHelpModal'));
 
 // Loading fallback for modals
 function ModalLoader() {
@@ -32,7 +34,8 @@ function App() {
     showExportModal,
     showTemplateBuilder,
     showTemplateEditor,
-    showImportModal
+    showImportModal,
+    showShortcutsHelpModal
   } = useUIStore();
 
   const { initTheme } = useThemeStore();
@@ -48,6 +51,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col transition-colors">
       <Header />
+      <ToastProvider />
       <main className="flex-1 overflow-hidden">
         <SplitPane
           left={<EditorPanel />}
@@ -62,6 +66,7 @@ function App() {
         {showTemplateBuilder && <TemplateBuilder />}
         {showTemplateEditor && <TemplateEditor />}
         {showImportModal && <ImportModal />}
+        {showShortcutsHelpModal && <ShortcutsHelpModal />}
       </Suspense>
 
       {/* Keyboard Shortcut Hint */}

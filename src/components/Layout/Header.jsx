@@ -4,6 +4,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import { useTemplateStore } from '../../store/templateStore';
 import { useHistoryStore } from '../../store/historyStore';
 import { useThemeStore } from '../../store/themeStore';
+import { useToast } from '../../store/toastStore';
 
 export default function Header() {
   const { openTemplateGallery, openExportModal, openImportModal } = useUIStore();
@@ -11,14 +12,16 @@ export default function Header() {
   const { getCurrentTemplate } = useTemplateStore();
   const { undo, redo, canUndo, canRedo, pushState } = useHistoryStore();
   const { theme, toggleTheme, cycleTheme, getEffectiveTheme } = useThemeStore();
+  const { showToast } = useToast();
 
   const currentTemplate = getCurrentTemplate();
   const effectiveTheme = getEffectiveTheme();
 
+
   const handleSave = () => {
     pushState(JSON.stringify(resume));
     saveCurrentResume();
-    showToast('Resume saved!');
+    showToast('Resume saved!', 'success');
   };
 
   const handleUndo = () => {
@@ -29,9 +32,10 @@ export default function Header() {
           useResumeStore.setState({ resume: state });
         } catch (e) {
           console.error('Failed to restore state:', e);
+          showToast('Failed to undo', 'error');
         }
       });
-      showToast('Undo');
+      showToast('Undo successful', 'info');
     }
   };
 
@@ -43,34 +47,11 @@ export default function Header() {
           useResumeStore.setState({ resume: state });
         } catch (e) {
           console.error('Failed to restore state:', e);
+          showToast('Failed to redo', 'error');
         }
       });
-      showToast('Redo');
+      showToast('Redo successful', 'info');
     }
-  };
-
-  const showToast = (message) => {
-    const existing = document.querySelector('.header-toast');
-    if (existing) existing.remove();
-
-    const toast = document.createElement('div');
-    toast.className = 'header-toast';
-    toast.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: ${effectiveTheme === 'dark' ? '#10b981' : '#059669'};
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      z-index: 9999;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      animation: slideIn 0.2s ease-out;
-    `;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
   };
 
   const getThemeIcon = () => {

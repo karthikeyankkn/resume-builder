@@ -17,6 +17,7 @@ export const useUIStore = create((set, get) => ({
   showTemplateBuilder: false,
   showImportModal: false,
   showTemplateEditor: false,
+  showShortcutsHelpModal: false,
 
   // Template being edited
   editingTemplateId: null,
@@ -73,6 +74,10 @@ export const useUIStore = create((set, get) => ({
 
   openTemplateEditor: (templateId) => set({ showTemplateEditor: true, editingTemplateId: templateId }),
   closeTemplateEditor: () => set({ showTemplateEditor: false, editingTemplateId: null }),
+
+  openShortcutsHelpModal: () => set({ showShortcutsHelpModal: true }),
+  closeShortcutsHelpModal: () => set({ showShortcutsHelpModal: false }),
+  toggleShortcutsHelpModal: () => set(state => ({ showShortcutsHelpModal: !state.showShortcutsHelpModal })),
 
   // Clear active section
   clearActiveSection: () => set({ activeSection: null, activeSectionId: null }),
