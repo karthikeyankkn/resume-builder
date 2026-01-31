@@ -1,10 +1,11 @@
-import { X, Download, FileText, Loader2, FileJson, Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { X, Download, FileText, Loader2, FileJson, Eye, EyeOff, AlertTriangle, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { useUIStore } from '../../store/uiStore';
 import { useResumeStore } from '../../store/resumeStore';
 import { useTemplateStore } from '../../store/templateStore';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import ResumePDF from './ResumePDF';
+import { validateResume } from '../../utils/validationUtils';
 
 export default function ExportModal() {
   const { closeExportModal } = useUIStore();
@@ -13,6 +14,14 @@ export default function ExportModal() {
   const template = getCurrentTemplate();
   const [activeTab, setActiveTab] = useState('pdf');
   const [showPreview, setShowPreview] = useState(false);
+  const [acknowledgedIssues, setAcknowledgedIssues] = useState(false);
+  const [showIssueDetails, setShowIssueDetails] = useState(false);
+
+  // Validate resume
+  const validation = useMemo(() => validateResume(resume), [resume]);
+  const hasErrors = validation.errors.length > 0;
+  const hasWarnings = validation.warnings.length > 0;
+  const canExport = !hasErrors || acknowledgedIssues;
 
   const handleExportJSON = () => {
     const jsonString = exportResume();
@@ -20,7 +29,7 @@ export default function ExportModal() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${resume.personalInfo.fullName.replace(/\s+/g, '_')}_resume.json`;
+    link.download = `${(resume.personalInfo.fullName || 'My_Resume').replace(/\s+/g, '_')}_resume.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -125,10 +134,88 @@ export default function ExportModal() {
                 </div>
               )}
 
+              {/* Validation Issues */}
+              {(hasErrors || hasWarnings) && (
+                <div className={`border rounded-xl p-4 ${hasErrors ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}>
+                  <div className="flex items-start gap-3">
+                    {hasErrors ? (
+                      <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                    ) : (
+                      <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                    )}
+                    <div className="flex-1">
+                      <h4 className={`font-medium ${hasErrors ? 'text-red-900' : 'text-yellow-900'}`}>
+                        {hasErrors
+                          ? `${validation.errors.length} validation error${validation.errors.length > 1 ? 's' : ''} found`
+                          : `${validation.warnings.length} warning${validation.warnings.length > 1 ? 's' : ''}`
+                        }
+                      </h4>
+                      <p className={`text-sm mt-1 ${hasErrors ? 'text-red-700' : 'text-yellow-700'}`}>
+                        {hasErrors
+                          ? 'Your resume has issues that should be fixed before exporting.'
+                          : 'Your resume may be missing some recommended information.'
+                        }
+                      </p>
+
+                      {/* Toggle issue details */}
+                      <button
+                        onClick={() => setShowIssueDetails(!showIssueDetails)}
+                        className={`text-sm font-medium mt-2 inline-flex items-center gap-1 ${hasErrors ? 'text-red-700 hover:text-red-800' : 'text-yellow-700 hover:text-yellow-800'}`}
+                      >
+                        {showIssueDetails ? (
+                          <>
+                            <ChevronUp className="w-4 h-4" />
+                            Hide details
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="w-4 h-4" />
+                            Show details
+                          </>
+                        )}
+                      </button>
+
+                      {/* Issue details */}
+                      {showIssueDetails && (
+                        <div className="mt-3 space-y-2">
+                          {validation.errors.map((issue, idx) => (
+                            <div key={`error-${idx}`} className="flex items-start gap-2 text-sm text-red-700">
+                              <span className="font-medium">{issue.section}:</span>
+                              <span>{issue.error}</span>
+                            </div>
+                          ))}
+                          {validation.warnings.map((issue, idx) => (
+                            <div key={`warning-${idx}`} className="flex items-start gap-2 text-sm text-yellow-700">
+                              <span className="font-medium">{issue.section}:</span>
+                              <span>{issue.error}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Acknowledge checkbox for errors */}
+                      {hasErrors && (
+                        <label className="flex items-center gap-2 mt-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={acknowledgedIssues}
+                            onChange={(e) => setAcknowledgedIssues(e.target.checked)}
+                            className="w-4 h-4 text-red-600 border-red-300 rounded focus:ring-red-500"
+                          />
+                          <span className="text-sm text-red-700">
+                            I understand and want to export anyway
+                          </span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Download Button */}
               <PDFDownloadLink
                 document={<ResumePDF resume={resume} template={template} />}
-                fileName={`${resume.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`}
+                fileName={`${(resume.personalInfo.fullName || 'My_Resume').replace(/\s+/g, '_')}_Resume.pdf`}
               >
                 {({ loading, error }) => (
                   error ? (
@@ -138,13 +225,23 @@ export default function ExportModal() {
                     </div>
                   ) : (
                     <button
-                      className="btn btn-primary w-full py-3.5 text-base inline-flex items-center justify-center gap-2"
-                      disabled={loading}
+                      className={`btn w-full py-3.5 text-base inline-flex items-center justify-center gap-2 ${
+                        canExport
+                          ? 'btn-primary'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                      disabled={loading || !canExport}
+                      title={!canExport ? 'Please fix validation errors or acknowledge them to export' : ''}
                     >
                       {loading ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
                           Generating PDF...
+                        </>
+                      ) : !canExport ? (
+                        <>
+                          <AlertCircle className="w-5 h-5" />
+                          Fix Errors to Export
                         </>
                       ) : (
                         <>

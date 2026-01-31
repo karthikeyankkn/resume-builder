@@ -112,3 +112,163 @@ export function validateRequired(value, fieldName = 'This field') {
   }
   return { valid: true };
 }
+
+/**
+ * Validates the entire resume and returns all validation errors
+ * @param {object} resume - The resume object to validate
+ * @returns {{ valid: boolean, errors: Array<{ section: string, field: string, error: string, severity: 'error' | 'warning' }> }}
+ */
+export function validateResume(resume) {
+  const errors = [];
+
+  // Helper to add error
+  const addError = (section, field, error, severity = 'error') => {
+    errors.push({ section, field, error, severity });
+  };
+
+  // Personal Info validation
+  const personalInfo = resume?.personalInfo || {};
+
+  // Required field: Full Name
+  if (!personalInfo.fullName?.trim()) {
+    addError('Personal Info', 'Full Name', 'Full name is required for your resume', 'error');
+  }
+
+  // Email validation (if provided)
+  if (personalInfo.email?.trim()) {
+    const emailResult = validateEmail(personalInfo.email);
+    if (!emailResult.valid) {
+      addError('Personal Info', 'Email', emailResult.error, 'error');
+    }
+  } else {
+    addError('Personal Info', 'Email', 'Consider adding an email for recruiters to contact you', 'warning');
+  }
+
+  // Phone validation (if provided)
+  if (personalInfo.phone?.trim()) {
+    const phoneResult = validatePhone(personalInfo.phone);
+    if (!phoneResult.valid) {
+      addError('Personal Info', 'Phone', phoneResult.error, 'error');
+    }
+  }
+
+  // URL validations
+  if (personalInfo.linkedin?.trim()) {
+    const linkedinResult = validateUrl(personalInfo.linkedin);
+    if (!linkedinResult.valid) {
+      addError('Personal Info', 'LinkedIn', linkedinResult.error, 'error');
+    }
+  }
+
+  if (personalInfo.github?.trim()) {
+    const githubResult = validateUrl(personalInfo.github);
+    if (!githubResult.valid) {
+      addError('Personal Info', 'GitHub', githubResult.error, 'error');
+    }
+  }
+
+  if (personalInfo.portfolio?.trim()) {
+    const portfolioResult = validateUrl(personalInfo.portfolio);
+    if (!portfolioResult.valid) {
+      addError('Personal Info', 'Portfolio', portfolioResult.error, 'error');
+    }
+  }
+
+  if (personalInfo.website?.trim()) {
+    const websiteResult = validateUrl(personalInfo.website);
+    if (!websiteResult.valid) {
+      addError('Personal Info', 'Website', websiteResult.error, 'error');
+    }
+  }
+
+  // Experience validation
+  const experiences = resume?.experience || [];
+  experiences.forEach((exp, index) => {
+    const expLabel = exp.company ? `Experience: ${exp.company}` : `Experience #${index + 1}`;
+
+    if (!exp.company?.trim() && !exp.position?.trim()) {
+      addError(expLabel, 'Company/Position', 'Experience entry is incomplete', 'warning');
+    }
+
+    // Date validation
+    if (exp.startDate && exp.endDate && !exp.current) {
+      const dateResult = validateDateRange(exp.startDate, exp.endDate, exp.current);
+      if (!dateResult.valid) {
+        addError(expLabel, 'Dates', dateResult.error, 'error');
+      }
+    }
+  });
+
+  // Education validation
+  const education = resume?.education || [];
+  education.forEach((edu, index) => {
+    const eduLabel = edu.institution ? `Education: ${edu.institution}` : `Education #${index + 1}`;
+
+    if (!edu.institution?.trim() && !edu.degree?.trim()) {
+      addError(eduLabel, 'Institution/Degree', 'Education entry is incomplete', 'warning');
+    }
+
+    // Date validation
+    if (edu.startDate && edu.endDate && !edu.current) {
+      const dateResult = validateDateRange(edu.startDate, edu.endDate, edu.current);
+      if (!dateResult.valid) {
+        addError(eduLabel, 'Dates', dateResult.error, 'error');
+      }
+    }
+  });
+
+  // Projects validation
+  const projects = resume?.projects || [];
+  projects.forEach((project, index) => {
+    const projectLabel = project.name ? `Project: ${project.name}` : `Project #${index + 1}`;
+
+    if (project.link?.trim()) {
+      const linkResult = validateUrl(project.link);
+      if (!linkResult.valid) {
+        addError(projectLabel, 'Link', linkResult.error, 'error');
+      }
+    }
+
+    if (project.github?.trim()) {
+      const githubResult = validateUrl(project.github);
+      if (!githubResult.valid) {
+        addError(projectLabel, 'GitHub', githubResult.error, 'error');
+      }
+    }
+  });
+
+  // Certifications validation
+  const certifications = resume?.certifications || [];
+  certifications.forEach((cert, index) => {
+    const certLabel = cert.name ? `Certification: ${cert.name}` : `Certification #${index + 1}`;
+
+    if (cert.url?.trim()) {
+      const urlResult = validateUrl(cert.url);
+      if (!urlResult.valid) {
+        addError(certLabel, 'URL', urlResult.error, 'error');
+      }
+    }
+  });
+
+  // Check for empty resume warning
+  const hasContent = personalInfo.fullName?.trim() ||
+    experiences.length > 0 ||
+    education.length > 0 ||
+    projects.length > 0 ||
+    (resume?.skills?.categories || []).some(cat => cat.items?.length > 0);
+
+  if (!hasContent) {
+    addError('Resume', 'Content', 'Your resume appears to be empty', 'error');
+  }
+
+  // Separate errors by severity
+  const criticalErrors = errors.filter(e => e.severity === 'error');
+  const warnings = errors.filter(e => e.severity === 'warning');
+
+  return {
+    valid: criticalErrors.length === 0,
+    errors: criticalErrors,
+    warnings: warnings,
+    allIssues: errors
+  };
+}

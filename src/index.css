@@ -679,6 +679,15 @@ input[type="month"]:not(:valid) {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
 /* Skeleton shimmer effect */
 @keyframes shimmer {
   0% {

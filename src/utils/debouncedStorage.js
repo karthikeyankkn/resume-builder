@@ -1,15 +1,142 @@
 // Debounced localStorage storage for Zustand persist middleware
 
+// Storage error state management
+let storageErrorCallbacks = [];
+let lastStorageError = null;
+
+/**
+ * Register a callback to be notified of storage errors
+ * @param {function} callback - Called with error object when storage fails
+ * @returns {function} Unsubscribe function
+ */
+export function onStorageError(callback) {
+  storageErrorCallbacks.push(callback);
+  return () => {
+    storageErrorCallbacks = storageErrorCallbacks.filter(cb => cb !== callback);
+  };
+}
+
+/**
+ * Get the last storage error (if any)
+ * @returns {object|null} Last error or null
+ */
+export function getLastStorageError() {
+  return lastStorageError;
+}
+
+/**
+ * Clear the last storage error
+ */
+export function clearStorageError() {
+  lastStorageError = null;
+}
+
+/**
+ * Get approximate localStorage usage
+ * @returns {{ used: number, total: number, percentage: number }}
+ */
+export function getStorageUsage() {
+  let used = 0;
+  try {
+    for (let key in localStorage) {
+      if (Object.hasOwn(localStorage, key)) {
+        used += localStorage.getItem(key).length * 2; // UTF-16 = 2 bytes per char
+      }
+    }
+  } catch {
+    // Ignore errors during size calculation
+  }
+  // Most browsers have 5-10MB limit, assume 5MB for safety
+  const total = 5 * 1024 * 1024;
+  return {
+    used,
+    total,
+    percentage: Math.round((used / total) * 100)
+  };
+}
+
+/**
+ * Attempt to free up localStorage space by removing old/large items
+ * @param {string[]} protectedKeys - Keys that should not be removed
+ * @returns {boolean} True if space was freed
+ */
+export function cleanupStorage(protectedKeys = ['resume-storage', 'template-storage']) {
+  try {
+    const keysToRemove = [];
+    for (let key in localStorage) {
+      if (Object.hasOwn(localStorage, key) && !protectedKeys.includes(key)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    return keysToRemove.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function notifyStorageError(error, key) {
+  lastStorageError = {
+    error,
+    key,
+    timestamp: Date.now(),
+    isQuotaError: error.name === 'QuotaExceededError' ||
+                  error.code === 22 || // Legacy Safari
+                  error.code === 1014 || // Firefox
+                  error.message?.includes('quota')
+  };
+  storageErrorCallbacks.forEach(cb => {
+    try {
+      cb(lastStorageError);
+    } catch (e) {
+      console.error('Storage error callback failed:', e);
+    }
+  });
+}
+
 export function createDebouncedStorage(delay = 500) {
   let timeoutId = null;
   let pendingValue = null;
   let pendingKey = null;
 
+  const safeSetItem = (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+      // Clear any previous error on successful save
+      if (lastStorageError?.key === key) {
+        lastStorageError = null;
+      }
+      return true;
+    } catch (error) {
+      notifyStorageError(error, key);
+
+      // Attempt cleanup and retry once for quota errors
+      if (error.name === 'QuotaExceededError' || error.code === 22 || error.code === 1014) {
+        console.warn('localStorage quota exceeded, attempting cleanup...');
+        if (cleanupStorage([key])) {
+          try {
+            localStorage.setItem(key, value);
+            lastStorageError = null;
+            return true;
+          } catch (retryError) {
+            notifyStorageError(retryError, key);
+          }
+        }
+      }
+      return false;
+    }
+  };
+
   return {
     getItem: (name) => {
-      const str = localStorage.getItem(name);
-      if (!str) return null;
-      return JSON.parse(str);
+      try {
+        const str = localStorage.getItem(name);
+        if (!str) return null;
+        return JSON.parse(str);
+      } catch (error) {
+        console.error('Failed to read from localStorage:', error);
+        return null;
+      }
     },
 
     setItem: (name, value) => {
@@ -21,7 +148,8 @@ export function createDebouncedStorage(delay = 500) {
       }
 
       timeoutId = setTimeout(() => {
-        localStorage.setItem(pendingKey, JSON.stringify(pendingValue));
+        const serialized = JSON.stringify(pendingValue);
+        safeSetItem(pendingKey, serialized);
         timeoutId = null;
         pendingKey = null;
         pendingValue = null;
@@ -36,18 +164,30 @@ export function createDebouncedStorage(delay = 500) {
         pendingKey = null;
         pendingValue = null;
       }
-      localStorage.removeItem(name);
+      try {
+        localStorage.removeItem(name);
+      } catch (error) {
+        console.error('Failed to remove from localStorage:', error);
+      }
     },
 
     // Force immediate save (useful for explicit save actions)
     flush: () => {
       if (timeoutId && pendingKey && pendingValue !== null) {
         clearTimeout(timeoutId);
-        localStorage.setItem(pendingKey, JSON.stringify(pendingValue));
+        const serialized = JSON.stringify(pendingValue);
+        const success = safeSetItem(pendingKey, serialized);
         timeoutId = null;
         pendingKey = null;
         pendingValue = null;
+        return success;
       }
+      return true;
+    },
+
+    // Check if there's a pending write
+    hasPendingWrite: () => {
+      return timeoutId !== null;
     }
   };
 }

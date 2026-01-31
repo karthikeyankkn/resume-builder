@@ -9,6 +9,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ToastProvider from './components/common/ToastProvider';
 import ConfirmModal from './components/common/ConfirmModal';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import StorageErrorNotification from './components/common/StorageErrorNotification';
 import { SkeletonTemplateGallery, SkeletonExportModal, SkeletonModal } from './components/common/Skeleton';
 import { GuidedTour } from './components/GuidedTour';
 
@@ -80,6 +81,7 @@ function App() {
           <Header />
         </ErrorBoundary>
         <ToastProvider />
+        <StorageErrorNotification />
         <main className="flex-1 overflow-hidden">
           <ErrorBoundary>
             <SplitPane
