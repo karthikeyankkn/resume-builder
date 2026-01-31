@@ -142,6 +142,57 @@ const builtInTemplates = [
       }
     }
   },
+  {
+    id: 'modern-2026',
+    name: 'Modern 2026',
+    description: 'Dual-column layout with progress bars, strategic sections & visual hierarchy',
+    thumbnail: null,
+    isCustom: false,
+    createdFrom: 'preset',
+    layout: {
+      columns: 2,
+      headerStyle: 'split',
+      sectionOrder: ['personalInfo', 'summary', 'experience', 'education', 'projects', 'certifications'],
+      sidebar: {
+        enabled: true,
+        position: 'left',
+        sections: ['skills', 'certifications'],
+        fullHeight: true
+      }
+    },
+    styles: {
+      colors: {
+        primary: '#001F3F',
+        secondary: '#64748b',
+        accent: '#2E8B57',
+        skillBar: '#800080',
+        highlight: '#DAA520',
+        text: '#1e293b',
+        background: '#ffffff',
+        headerBg: '#ffffff',
+        sidebarBg: '#001F3F',
+        sidebarText: '#ffffff'
+      },
+      fonts: {
+        heading: 'Inter',
+        body: 'Inter',
+        sizes: { name: '24px', title: '12px', sectionTitle: '11px', body: '10px' }
+      },
+      spacing: {
+        sectionGap: '14px',
+        itemGap: '8px',
+        padding: '0px',
+        sidebarPadding: '20px',
+        mainPadding: '24px'
+      },
+      features: {
+        skillProgressBars: true,
+        contactIcons: true,
+        sectionDividers: true,
+        accentBullets: true
+      }
+    }
+  },
 ];
 
 export const useTemplateStore = create(

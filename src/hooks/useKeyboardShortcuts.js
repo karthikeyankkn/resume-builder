@@ -10,6 +10,7 @@ export function useKeyboardShortcuts() {
     openExportModal,
     openTemplateGallery,
     openImportModal,
+    openATSAnalyzer,
     zoomIn,
     zoomOut,
     setZoom,
@@ -18,7 +19,9 @@ export function useKeyboardShortcuts() {
     closeExportModal,
     closeTemplateBuilder,
     closeImportModal,
-    closeShortcutsHelpModal
+    closeShortcutsHelpModal,
+    closeATSAnalyzer,
+    closeImpactBuilder
   } = useUIStore();
 
   const { resume, saveCurrentResume } = useResumeStore();
@@ -98,6 +101,13 @@ export function useKeyboardShortcuts() {
       return;
     }
 
+    // Cmd/Ctrl + K - ATS Analyzer (only if not typing)
+    if (cmdKey && e.key === 'k' && !isTyping) {
+      e.preventDefault();
+      openATSAnalyzer();
+      return;
+    }
+
     // Cmd/Ctrl + Shift + L - Toggle Theme
     if (cmdKey && e.shiftKey && e.key === 'l') {
       e.preventDefault();
@@ -135,6 +145,8 @@ export function useKeyboardShortcuts() {
       closeTemplateBuilder();
       closeImportModal();
       closeShortcutsHelpModal();
+      closeATSAnalyzer();
+      closeImpactBuilder();
       return;
     }
 
@@ -145,10 +157,11 @@ export function useKeyboardShortcuts() {
     }
   }, [
     resume, undo, redo, canUndo, canRedo, restoreState, storeState,
-    openExportModal, openTemplateGallery, openImportModal,
+    openExportModal, openTemplateGallery, openImportModal, openATSAnalyzer,
     zoomIn, zoomOut, setZoom, saveCurrentResume, toggleTheme, showToast,
     toggleShortcutsHelpModal, closeTemplateGallery, closeExportModal,
-    closeTemplateBuilder, closeImportModal, closeShortcutsHelpModal
+    closeTemplateBuilder, closeImportModal, closeShortcutsHelpModal,
+    closeATSAnalyzer, closeImpactBuilder
   ]);
 
   // Track changes for undo history

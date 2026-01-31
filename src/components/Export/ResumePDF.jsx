@@ -62,6 +62,31 @@ const parsePadding = (padding, defaultPadding) => {
   return isNaN(parsed) ? defaultPadding : parsed;
 };
 
+// Progress bar component for skills in PDF
+const SkillProgressBarPDF = ({ name, level, barColor, trackColor, textColor }) => {
+  const percentage = level || 75;
+  return (
+    <View style={{ marginBottom: 6 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
+        <Text style={{ fontSize: 8, color: textColor }}>{name}</Text>
+        <Text style={{ fontSize: 7, color: textColor }}>{percentage}%</Text>
+      </View>
+      <View style={{
+        height: 5,
+        backgroundColor: trackColor || 'rgba(255,255,255,0.2)',
+        borderRadius: 2
+      }}>
+        <View style={{
+          width: `${percentage}%`,
+          height: 5,
+          backgroundColor: barColor || '#800080',
+          borderRadius: 2
+        }} />
+      </View>
+    </View>
+  );
+};
+
 // Resume PDF Component
 export default function ResumePDF({ resume, template }) {
   // Defensive checks for missing data
@@ -109,6 +134,16 @@ export default function ResumePDF({ resume, template }) {
   const sidebarPosition = templateLayout.sidebar?.position || 'right';
   const sidebarSections = templateLayout.sidebar?.sections || [];
   const headerStyle = templateLayout.headerStyle || 'centered';
+  const isFullHeightSidebar = templateLayout.sidebar?.fullHeight;
+  const templateFeatures = template?.styles?.features || {};
+  const hasSkillProgressBars = templateFeatures.skillProgressBars;
+  const hasContactIcons = templateFeatures.contactIcons;
+
+  // Additional colors for Modern 2026
+  const sidebarBg = templateColors.sidebarBg || colors.sidebarBg;
+  const sidebarText = templateColors.sidebarText || '#ffffff';
+  const skillBarColor = templateColors.skillBar || '#800080';
+  const accentColor = templateColors.accent || '#2E8B57';
 
   // Create styles based on template
   const styles = StyleSheet.create({
@@ -309,6 +344,67 @@ export default function ResumePDF({ resume, template }) {
       backgroundColor: colors.sidebarBg,
       padding: 10,
       borderRadius: 4
+    },
+    // Modern 2026 full-height sidebar styles
+    fullHeightSidebar: {
+      width: '35%',
+      backgroundColor: sidebarBg || '#001F3F',
+      padding: 20,
+      minHeight: '100%'
+    },
+    sidebarText: {
+      color: sidebarText,
+      fontSize: 8
+    },
+    sidebarSectionTitle: {
+      fontSize: fontSizes.sectionTitle,
+      fontWeight: 600,
+      color: sidebarText,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: 8,
+      marginTop: 14,
+      paddingBottom: 4,
+      borderBottomWidth: 1,
+      borderBottomColor: 'rgba(255,255,255,0.3)'
+    },
+    sidebarContactItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 6
+    },
+    sidebarContactIcon: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: 'rgba(255,255,255,0.15)',
+      marginRight: 8,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    mainContentArea: {
+      flex: 1,
+      padding: 24
+    },
+    splitHeader: {
+      marginBottom: 16,
+      paddingBottom: 10,
+      borderBottomWidth: 2,
+      borderBottomColor: colors.primary
+    },
+    splitHeaderName: {
+      fontSize: fontSizes.name,
+      fontWeight: 700,
+      color: colors.primary,
+      textTransform: 'uppercase',
+      letterSpacing: 2
+    },
+    splitHeaderTitle: {
+      fontSize: fontSizes.title,
+      color: colors.secondary,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      marginTop: 2
     }
   });
 
@@ -360,8 +456,19 @@ export default function ResumePDF({ resume, template }) {
             {exp.highlights.filter(h => h).length > 0 && (
               <View style={styles.bulletList}>
                 {exp.highlights.filter(h => h).map((highlight, i) => (
-                  <View key={i} style={styles.bulletItem}>
-                    <Text style={styles.bullet}>•</Text>
+                  <View key={i} style={{ ...styles.bulletItem, alignItems: templateFeatures.accentBullets ? 'flex-start' : 'center' }}>
+                    {templateFeatures.accentBullets ? (
+                      <View style={{
+                        width: 5,
+                        height: 5,
+                        borderRadius: 2.5,
+                        backgroundColor: accentColor,
+                        marginRight: 6,
+                        marginTop: 3
+                      }} />
+                    ) : (
+                      <Text style={styles.bullet}>•</Text>
+                    )}
                     <Text style={styles.bulletText}>{highlight}</Text>
                   </View>
                 ))}
@@ -409,16 +516,42 @@ export default function ResumePDF({ resume, template }) {
   );
 
   // Render Skills
-  const renderSkills = () => (
+  const renderSkills = (inSidebar = false) => (
     skills.categories.length > 0 && (
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Skills</Text>
-        {skills.categories.map((category) => (
-          <View key={category.id} style={styles.skillCategory}>
-            <Text style={styles.skillName}>{category.name}:</Text>
-            <Text style={styles.skillItems}>{category.items.join(', ')}</Text>
-          </View>
-        ))}
+        {inSidebar && isFullHeightSidebar ? (
+          <Text style={styles.sidebarSectionTitle}>Skill Proficiency</Text>
+        ) : (
+          <Text style={styles.sectionTitle}>Skills</Text>
+        )}
+        {hasSkillProgressBars && inSidebar ? (
+          // Render progress bars for Modern 2026 template
+          skills.categories.map((category) => (
+            <View key={category.id} style={{ marginBottom: 10 }}>
+              <Text style={{ fontSize: 8, fontWeight: 600, color: sidebarText, marginBottom: 4 }}>
+                {category.name}
+              </Text>
+              {category.items.map((skill, idx) => (
+                <SkillProgressBarPDF
+                  key={idx}
+                  name={skill}
+                  level={70 + (idx * 5) % 30}
+                  barColor={skillBarColor}
+                  trackColor="rgba(255,255,255,0.2)"
+                  textColor={sidebarText}
+                />
+              ))}
+            </View>
+          ))
+        ) : (
+          // Default skill rendering
+          skills.categories.map((category) => (
+            <View key={category.id} style={styles.skillCategory}>
+              <Text style={styles.skillName}>{category.name}:</Text>
+              <Text style={styles.skillItems}>{category.items.join(', ')}</Text>
+            </View>
+          ))
+        )}
       </View>
     )
   );
@@ -502,18 +635,138 @@ export default function ResumePDF({ resume, template }) {
     return mainSectionKeys.map(key => sections[key]);
   };
 
+  // Render certifications for sidebar with different styling
+  const renderSidebarCertifications = () => (
+    certifications.length > 0 && (
+      <View style={styles.section}>
+        <Text style={styles.sidebarSectionTitle}>Certifications</Text>
+        {certifications.map((cert) => (
+          <View key={cert.id} style={{ marginBottom: 5 }} wrap={false}>
+            <Text style={{ fontSize: 8, fontWeight: 500, color: sidebarText }}>{cert.name}</Text>
+            <Text style={{ fontSize: 7, color: 'rgba(255,255,255,0.7)' }}>
+              {cert.issuer} • {formatDate(cert.date)}
+            </Text>
+          </View>
+        ))}
+      </View>
+    )
+  );
+
+  // Render contact info for sidebar
+  const renderSidebarContact = () => {
+    if (!hasContactIcons) return null;
+
+    const contactItems = [
+      { label: 'Phone', value: personalInfo.phone },
+      { label: 'Email', value: personalInfo.email },
+      { label: 'LinkedIn', value: personalInfo.linkedIn },
+      { label: 'Portfolio', value: personalInfo.portfolio },
+      { label: 'GitHub', value: personalInfo.github },
+      { label: 'Location', value: personalInfo.location }
+    ].filter(item => item.value);
+
+    return (
+      <View style={{ marginBottom: 12 }}>
+        {contactItems.map((item, idx) => (
+          <View key={idx} style={styles.sidebarContactItem}>
+            <View style={styles.sidebarContactIcon}>
+              <Text style={{ fontSize: 6, color: sidebarText }}>•</Text>
+            </View>
+            <Text style={{ fontSize: 7, color: sidebarText }}>{item.value}</Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   // Get sidebar sections
   const renderSidebarContent = () => {
     const sections = {
       summary: renderSummary(),
-      skills: renderSkills(),
-      certifications: renderCertifications(),
+      skills: renderSkills(isFullHeightSidebar),
+      certifications: isFullHeightSidebar ? renderSidebarCertifications() : renderCertifications(),
       projects: renderProjects()
     };
 
     return sidebarSections.map(key => sections[key]).filter(Boolean);
   };
 
+  // Modern 2026 full-height sidebar layout
+  if (isFullHeightSidebar && hasSidebar) {
+    return (
+      <Document
+        title={`${personalInfo.fullName} - Resume`}
+        author={personalInfo.fullName}
+        subject="Professional Resume"
+        keywords="resume, cv, professional"
+      >
+        <Page size="A4" style={{ ...styles.page, flexDirection: 'row', padding: 0 }}>
+          {/* Full-height Sidebar */}
+          {sidebarPosition === 'left' && (
+            <View style={styles.fullHeightSidebar}>
+              {/* Profile photo in sidebar */}
+              {personalInfo.photo && (
+                <View style={{ alignItems: 'center', marginBottom: 12 }}>
+                  <Image
+                    src={personalInfo.photo}
+                    style={{
+                      width: 70,
+                      height: 70,
+                      borderRadius: 35,
+                      objectFit: 'cover'
+                    }}
+                  />
+                </View>
+              )}
+              {/* Contact info */}
+              {renderSidebarContact()}
+              {/* Sidebar sections */}
+              {renderSidebarContent()}
+            </View>
+          )}
+
+          {/* Main Content Area */}
+          <View style={styles.mainContentArea}>
+            {/* Header in main content */}
+            <View style={styles.splitHeader}>
+              <Text style={styles.splitHeaderName}>
+                {personalInfo.fullName || 'Your Name'}
+              </Text>
+              <Text style={styles.splitHeaderTitle}>
+                {personalInfo.title || 'Your Title'}
+              </Text>
+            </View>
+
+            {/* Main sections */}
+            {renderMainSections()}
+          </View>
+
+          {/* Right sidebar if position is right */}
+          {sidebarPosition === 'right' && (
+            <View style={styles.fullHeightSidebar}>
+              {personalInfo.photo && (
+                <View style={{ alignItems: 'center', marginBottom: 12 }}>
+                  <Image
+                    src={personalInfo.photo}
+                    style={{
+                      width: 70,
+                      height: 70,
+                      borderRadius: 35,
+                      objectFit: 'cover'
+                    }}
+                  />
+                </View>
+              )}
+              {renderSidebarContact()}
+              {renderSidebarContent()}
+            </View>
+          )}
+        </Page>
+      </Document>
+    );
+  }
+
+  // Standard layout
   return (
     <Document
       title={`${personalInfo.fullName} - Resume`}

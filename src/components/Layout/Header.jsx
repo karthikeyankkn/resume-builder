@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo } from 'react';
-import { FileText, Download, Layout, Upload, FilePlus, Save, Undo2, Redo2, Sun, Moon, Monitor, Check, Cloud, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { FileText, Download, Layout, Upload, FilePlus, Save, Undo2, Redo2, Sun, Moon, Monitor, Check, Cloud, Loader2, Target, HelpCircle } from 'lucide-react';
+import { resetTour } from '../GuidedTour';
 import { useUIStore } from '../../store/uiStore';
 import { useResumeStore } from '../../store/resumeStore';
 import { useTemplateStore } from '../../store/templateStore';
@@ -25,7 +26,7 @@ function formatRelativeTime(dateString) {
 }
 
 export default function Header() {
-  const { openTemplateGallery, openExportModal, openImportModal } = useUIStore();
+  const { openTemplateGallery, openExportModal, openImportModal, openATSAnalyzer } = useUIStore();
   const { resume, saveCurrentResume, resetResume, isDirty, clearDirty, lastSavedAt } = useResumeStore();
   const { getCurrentTemplate } = useTemplateStore();
   const { undo, redo, canUndo, canRedo, pushState, getUndoCount, getRedoCount } = useHistoryStore();
@@ -131,6 +132,16 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-1">
+        {/* Help/Tour Button */}
+        <button
+          onClick={resetTour}
+          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          title="Show guided tour"
+          aria-label="Show guided tour"
+        >
+          <HelpCircle className="w-4 h-4" />
+        </button>
+
         {/* Theme Toggle */}
         <button
           onClick={cycleTheme}
@@ -177,6 +188,7 @@ export default function Header() {
           onClick={openTemplateGallery}
           className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           title="Templates (Ctrl+T)"
+          data-tour="templates-btn"
         >
           <Layout className="w-4 h-4" />
           <span className="hidden sm:inline">{currentTemplate?.name || 'Modern'}</span>
@@ -192,6 +204,16 @@ export default function Header() {
         >
           <Upload className="w-4 h-4" />
           <span className="hidden sm:inline">Import</span>
+        </button>
+
+        {/* ATS Score Button */}
+        <button
+          onClick={openATSAnalyzer}
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          title="ATS Keyword Analyzer (Ctrl+K)"
+        >
+          <Target className="w-4 h-4" />
+          <span className="hidden sm:inline">ATS Score</span>
         </button>
 
         {/* Save Button with Auto-Save Indicator */}
@@ -267,6 +289,7 @@ export default function Header() {
           className="btn btn-primary btn-sm flex items-center gap-2"
           title="Export PDF (Ctrl+E)"
           aria-label="Export resume as PDF"
+          data-tour="export-btn"
         >
           <Download className="w-4 h-4" aria-hidden="true" />
           <span>Export PDF</span>

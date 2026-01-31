@@ -2,12 +2,15 @@ import { Plus, Trash2, ChevronDown, ChevronUp, ArrowUp, ArrowDown, AlertCircle }
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 import { useConfirm } from '../../../store/confirmStore';
+import { useUIStore } from '../../../store/uiStore';
 import MonthPicker from '../../common/MonthPicker';
 import { validateDateRange } from '../../../utils/validationUtils';
+import { InlineStrengthIndicator } from '../../ImpactBuilder';
 
 export default function Experience() {
   const { resume, addExperience, updateExperience, removeExperience, reorderExperience } = useResumeStore();
   const { confirm } = useConfirm();
+  const { openImpactBuilder } = useUIStore();
   const [expandedItems, setExpandedItems] = useState({});
 
   const toggleExpand = (id) => {
@@ -213,13 +216,21 @@ export default function Experience() {
                   <label className="form-label">Key Achievements</label>
                   <div className="space-y-2">
                     {exp.highlights.map((highlight, hIndex) => (
-                      <div key={hIndex} className="flex gap-2">
+                      <div key={hIndex} className="flex gap-2 items-center">
                         <input
                           type="text"
                           value={highlight}
                           onChange={(e) => handleHighlightChange(exp.id, hIndex, e.target.value)}
                           placeholder="Achieved 20% increase in..."
                           className="form-input flex-1"
+                        />
+                        <InlineStrengthIndicator
+                          text={highlight}
+                          onStrengthen={() => {
+                            openImpactBuilder(highlight, (newText) => {
+                              handleHighlightChange(exp.id, hIndex, newText);
+                            });
+                          }}
                         />
                         <button
                           onClick={() => removeHighlight(exp.id, hIndex)}

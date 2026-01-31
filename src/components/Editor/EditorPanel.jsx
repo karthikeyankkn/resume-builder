@@ -43,6 +43,7 @@ function AccordionSection({
   return (
     <div
       ref={sectionRef}
+      data-tour={`section-${sectionId}`}
       className={`bg-white rounded-lg border overflow-hidden transition-all duration-200 ${
         isHighlighted ? 'ring-2 ring-primary-400 border-primary-400' : 'border-gray-200'
       } ${isExpanded ? 'shadow-md' : 'shadow-sm hover:shadow-md'}`}
@@ -241,7 +242,7 @@ export default function EditorPanel() {
   }, []);
 
   return (
-    <div className="h-full overflow-y-auto p-4 bg-gray-50">
+    <div className="h-full overflow-y-auto p-4 bg-gray-50" data-tour="editor-panel">
       <div className="max-w-2xl mx-auto space-y-2">
         {/* Section Navigation Pills */}
         <div className="bg-white rounded-lg border border-gray-200 p-2 mb-4 shadow-sm">

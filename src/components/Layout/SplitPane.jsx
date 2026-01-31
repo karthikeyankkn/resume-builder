@@ -156,6 +156,7 @@ export default function SplitPane({ left, right }) {
       <div
         className="h-full overflow-hidden bg-gray-100"
         style={{ width: `${100 - splitPosition}%` }}
+        data-tour="preview-panel"
       >
         {right}
       </div>

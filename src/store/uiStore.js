@@ -18,6 +18,10 @@ export const useUIStore = create((set, get) => ({
   showImportModal: false,
   showTemplateEditor: false,
   showShortcutsHelpModal: false,
+  showATSAnalyzer: false,
+  showImpactBuilder: false,
+  impactBuilderText: '',
+  impactBuilderCallback: null,
 
   // Template being edited
   editingTemplateId: null,
@@ -78,6 +82,20 @@ export const useUIStore = create((set, get) => ({
   openShortcutsHelpModal: () => set({ showShortcutsHelpModal: true }),
   closeShortcutsHelpModal: () => set({ showShortcutsHelpModal: false }),
   toggleShortcutsHelpModal: () => set(state => ({ showShortcutsHelpModal: !state.showShortcutsHelpModal })),
+
+  openATSAnalyzer: () => set({ showATSAnalyzer: true }),
+  closeATSAnalyzer: () => set({ showATSAnalyzer: false }),
+
+  openImpactBuilder: (text, callback) => set({
+    showImpactBuilder: true,
+    impactBuilderText: text,
+    impactBuilderCallback: callback
+  }),
+  closeImpactBuilder: () => set({
+    showImpactBuilder: false,
+    impactBuilderText: '',
+    impactBuilderCallback: null
+  }),
 
   // Clear active section
   clearActiveSection: () => set({ activeSection: null, activeSectionId: null }),

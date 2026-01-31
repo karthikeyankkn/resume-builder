@@ -40,18 +40,96 @@ function isDarkColor(hexColor) {
   return brightness < 128;
 }
 
+// Contact icons as inline SVGs
+const ContactIcons = {
+  phone: (color) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+    </svg>
+  ),
+  email: (color) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+      <polyline points="22,6 12,13 2,6"/>
+    </svg>
+  ),
+  linkedin: (color) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill={color}>
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+      <rect x="2" y="9" width="4" height="12"/>
+      <circle cx="4" cy="4" r="2"/>
+    </svg>
+  ),
+  website: (color) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="2" y1="12" x2="22" y2="12"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+  ),
+  github: (color) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill={color}>
+      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+    </svg>
+  ),
+  location: (color) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+  )
+};
+
+// Progress bar component for skills
+function SkillProgressBar({ name, level, barColor, trackColor, textColor }) {
+  const percentage = level || 75;
+  return (
+    <div style={{ marginBottom: '8px' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: '3px',
+        fontSize: '9px',
+        color: textColor
+      }}>
+        <span>{name}</span>
+        <span>{percentage}%</span>
+      </div>
+      <div style={{
+        height: '6px',
+        backgroundColor: trackColor || 'rgba(255,255,255,0.2)',
+        borderRadius: '3px',
+        overflow: 'hidden'
+      }}>
+        <div style={{
+          width: `${percentage}%`,
+          height: '100%',
+          backgroundColor: barColor || '#800080',
+          borderRadius: '3px',
+          transition: 'width 0.3s ease'
+        }} />
+      </div>
+    </div>
+  );
+}
+
 export default function ResumePreview() {
   const { resume } = useResumeStore();
   const { getCurrentTemplate } = useTemplateStore();
 
   const template = getCurrentTemplate();
-  const { colors, fonts, spacing } = template?.styles || {};
+  const { colors, fonts, spacing, features } = template?.styles || {};
   const { layout } = template || {};
 
   // Determine if using sidebar layout
   const hasSidebar = layout?.sidebar?.enabled;
   const sidebarPosition = layout?.sidebar?.position || 'right';
   const sidebarSections = layout?.sidebar?.sections || [];
+  const isFullHeightSidebar = layout?.sidebar?.fullHeight;
+  const isSplitHeader = layout?.headerStyle === 'split';
+  const hasSkillProgressBars = features?.skillProgressBars;
+  const hasContactIcons = features?.contactIcons;
+  const hasAccentBullets = features?.accentBullets;
 
   // Check if header has dark background for contrast
   const headerBg = colors?.headerBg || colors?.background || '#ffffff';
@@ -275,6 +353,57 @@ export default function ResumePreview() {
       padding: '12px',
       borderRadius: '4px',
       backgroundColor: colors?.sidebarBg || '#f8fafc'
+    },
+    // Modern 2026 specific styles
+    fullHeightSidebar: {
+      padding: spacing?.sidebarPadding || '20px',
+      backgroundColor: colors?.sidebarBg || '#001F3F',
+      color: colors?.sidebarText || '#ffffff',
+      minHeight: '297mm',
+      width: '35%'
+    },
+    sidebarContactItem: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      marginBottom: '8px',
+      fontSize: '8px',
+      color: colors?.sidebarText || '#ffffff'
+    },
+    sidebarContactIcon: {
+      width: '24px',
+      height: '24px',
+      borderRadius: '50%',
+      backgroundColor: 'rgba(255,255,255,0.15)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0
+    },
+    sidebarSectionTitle: {
+      fontSize: fonts?.sizes?.sectionTitle || '10px',
+      fontWeight: '600',
+      fontFamily: `${fonts?.heading || 'Inter'}, Helvetica, Arial, sans-serif`,
+      color: colors?.sidebarText || '#ffffff',
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      marginBottom: '10px',
+      marginTop: '16px',
+      paddingBottom: '4px',
+      borderBottom: `1px solid rgba(255,255,255,0.3)`
+    },
+    mainContentArea: {
+      padding: spacing?.mainPadding || '24px',
+      flex: 1
+    },
+    accentBullet: {
+      width: '6px',
+      height: '6px',
+      borderRadius: '50%',
+      backgroundColor: colors?.accent || '#2E8B57',
+      marginRight: '8px',
+      marginTop: '4px',
+      flexShrink: 0
     }
   };
 
@@ -321,8 +450,12 @@ export default function ResumePreview() {
           {exp.highlights.filter(h => h).length > 0 && (
             <div style={styles.bulletList}>
               {exp.highlights.filter(h => h).map((highlight, i) => (
-                <div key={i} style={styles.bulletItem}>
-                  <span style={styles.bullet}>•</span>
+                <div key={i} style={{ ...styles.bulletItem, alignItems: hasAccentBullets ? 'flex-start' : 'baseline' }}>
+                  {hasAccentBullets ? (
+                    <div style={styles.accentBullet} />
+                  ) : (
+                    <span style={styles.bullet}>•</span>
+                  )}
                   <span style={styles.bulletText}>{highlight}</span>
                 </div>
               ))}
@@ -373,15 +506,46 @@ export default function ResumePreview() {
   );
 
   // Render Skills section
-  const renderSkills = () => (
+  const renderSkills = (inSidebar = false) => (
     <ClickableRegion section="skills" style={styles.section} className="resume-section">
-      {renderSectionTitle('Skills')}
-      {skills.categories.map((category) => (
-        <div key={category.id} style={styles.skillCategory}>
-          <span style={styles.skillName}>{category.name}:</span>
-          <span style={styles.skillItems}>{category.items.join(', ')}</span>
-        </div>
-      ))}
+      {inSidebar && isFullHeightSidebar ? (
+        <div style={styles.sidebarSectionTitle}>Skill Proficiency</div>
+      ) : (
+        renderSectionTitle('Skills')
+      )}
+      {hasSkillProgressBars && inSidebar ? (
+        // Render progress bars for Modern 2026 template
+        skills.categories.map((category) => (
+          <div key={category.id} style={{ marginBottom: '12px' }}>
+            <div style={{
+              fontSize: '9px',
+              fontWeight: '600',
+              color: colors?.sidebarText || '#ffffff',
+              marginBottom: '6px'
+            }}>
+              {category.name}
+            </div>
+            {category.items.map((skill, idx) => (
+              <SkillProgressBar
+                key={idx}
+                name={skill}
+                level={70 + (idx * 5) % 30}
+                barColor={colors?.skillBar || '#800080'}
+                trackColor="rgba(255,255,255,0.2)"
+                textColor={colors?.sidebarText || '#ffffff'}
+              />
+            ))}
+          </div>
+        ))
+      ) : (
+        // Default skill rendering
+        skills.categories.map((category) => (
+          <div key={category.id} style={styles.skillCategory}>
+            <span style={styles.skillName}>{category.name}:</span>
+            <span style={styles.skillItems}>{category.items.join(', ')}</span>
+          </div>
+        ))
+      )}
     </ClickableRegion>
   );
 
@@ -520,6 +684,62 @@ export default function ResumePreview() {
     return mainSectionKeys.map(key => sections[key]);
   };
 
+  // Render contact info with icons for sidebar
+  const renderSidebarContact = () => {
+    if (!hasContactIcons) return null;
+
+    const contactItems = [
+      { icon: 'phone', value: personalInfo.phone },
+      { icon: 'email', value: personalInfo.email, link: `mailto:${personalInfo.email}` },
+      { icon: 'linkedin', value: personalInfo.linkedIn, link: `https://${personalInfo.linkedIn}` },
+      { icon: 'website', value: personalInfo.portfolio, link: `https://${personalInfo.portfolio}` },
+      { icon: 'github', value: personalInfo.github, link: `https://${personalInfo.github}` },
+      { icon: 'location', value: personalInfo.location }
+    ].filter(item => item.value);
+
+    return (
+      <div style={{ marginBottom: '16px' }}>
+        {contactItems.map((item, idx) => (
+          <div key={idx} style={styles.sidebarContactItem}>
+            <div style={styles.sidebarContactIcon}>
+              {ContactIcons[item.icon](colors?.sidebarText || '#ffffff')}
+            </div>
+            {item.link ? (
+              <a href={item.link} style={{ color: colors?.sidebarText || '#ffffff', textDecoration: 'none', fontSize: '8px', wordBreak: 'break-all' }}>
+                {item.value}
+              </a>
+            ) : (
+              <span style={{ fontSize: '8px', wordBreak: 'break-all' }}>{item.value}</span>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Render certifications for sidebar with different styling
+  const renderSidebarCertifications = () => (
+    <ClickableRegion section="certifications" style={styles.section} className="resume-section">
+      <div style={styles.sidebarSectionTitle}>Certifications</div>
+      {certifications.map((cert) => (
+        <ClickableRegion
+          key={cert.id}
+          section="certifications"
+          itemId={cert.id}
+          style={{ marginBottom: '6px' }}
+          className="resume-item"
+        >
+          <div style={{ fontSize: '9px', fontWeight: '500', color: colors?.sidebarText || '#ffffff' }}>
+            {cert.name}
+          </div>
+          <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.7)' }}>
+            {cert.issuer} • {formatDate(cert.date)}
+          </div>
+        </ClickableRegion>
+      ))}
+    </ClickableRegion>
+  );
+
   // Get sections for sidebar
   const renderSidebarSections = () => {
     if (!hasSidebar) return null;
@@ -527,18 +747,129 @@ export default function ResumePreview() {
     const sections = {
       summary: personalInfo.summary && (
         <ClickableRegion key="summary" section="summary" style={styles.section} className="resume-section">
-          {renderSectionTitle('Summary')}
-          <div style={styles.summary}>{personalInfo.summary}</div>
+          {isFullHeightSidebar ? (
+            <div style={styles.sidebarSectionTitle}>Summary</div>
+          ) : (
+            renderSectionTitle('Summary')
+          )}
+          <div style={{
+            ...styles.summary,
+            color: isFullHeightSidebar ? (colors?.sidebarText || '#ffffff') : (colors?.secondary || '#64748b')
+          }}>
+            {personalInfo.summary}
+          </div>
         </ClickableRegion>
       ),
-      skills: skills.categories.length > 0 && renderSkills(),
-      certifications: certifications.length > 0 && renderCertifications(),
+      skills: skills.categories.length > 0 && renderSkills(isFullHeightSidebar),
+      certifications: certifications.length > 0 && (isFullHeightSidebar ? renderSidebarCertifications() : renderCertifications()),
       projects: projects.length > 0 && renderProjects()
     };
 
     return sidebarSections.map(key => sections[key]).filter(Boolean);
   };
 
+  // Modern 2026 full-height sidebar layout
+  if (isFullHeightSidebar && hasSidebar) {
+    return (
+      <div style={{
+        ...styles.page,
+        display: 'flex',
+        padding: 0,
+        gap: 0
+      }}>
+        {/* Full-height Sidebar */}
+        {sidebarPosition === 'left' && (
+          <div style={styles.fullHeightSidebar}>
+            <ClickableRegion section="personalInfo">
+              {/* Profile photo in sidebar */}
+              {personalInfo.photo && (
+                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                  <img
+                    src={personalInfo.photo}
+                    alt="Profile"
+                    style={{
+                      ...styles.profileImage,
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      border: `3px solid ${colors?.skillBar || '#800080'}`
+                    }}
+                  />
+                </div>
+              )}
+              {/* Contact info with icons */}
+              {renderSidebarContact()}
+            </ClickableRegion>
+
+            {/* Sidebar sections */}
+            {renderSidebarSections()}
+          </div>
+        )}
+
+        {/* Main Content Area */}
+        <div style={styles.mainContentArea}>
+          {/* Header in main content */}
+          <ClickableRegion section="personalInfo" style={{
+            ...styles.header,
+            textAlign: 'left',
+            marginBottom: '20px',
+            paddingBottom: '12px',
+            borderBottom: `2px solid ${colors?.primary || '#001F3F'}`
+          }}>
+            <div style={{
+              ...styles.name,
+              fontSize: fonts?.sizes?.name || '24px',
+              color: colors?.primary || '#001F3F',
+              textTransform: 'uppercase',
+              letterSpacing: '2px'
+            }}>
+              {personalInfo.fullName || 'Your Name'}
+            </div>
+            <div style={{
+              ...styles.title,
+              fontSize: fonts?.sizes?.title || '12px',
+              color: colors?.secondary || '#64748b',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>
+              {personalInfo.title || 'Your Title'}
+            </div>
+          </ClickableRegion>
+
+          {/* Main sections */}
+          {renderMainSections()}
+          {customSections.length > 0 && renderCustomSections()}
+        </div>
+
+        {/* Right sidebar if position is right */}
+        {sidebarPosition === 'right' && (
+          <div style={styles.fullHeightSidebar}>
+            <ClickableRegion section="personalInfo">
+              {personalInfo.photo && (
+                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                  <img
+                    src={personalInfo.photo}
+                    alt="Profile"
+                    style={{
+                      ...styles.profileImage,
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      border: `3px solid ${colors?.skillBar || '#800080'}`
+                    }}
+                  />
+                </div>
+              )}
+              {renderSidebarContact()}
+            </ClickableRegion>
+            {renderSidebarSections()}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Standard layout (existing logic)
   return (
     <div style={styles.page}>
       {/* Header */}

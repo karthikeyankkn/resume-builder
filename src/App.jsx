@@ -10,6 +10,7 @@ import ToastProvider from './components/common/ToastProvider';
 import ConfirmModal from './components/common/ConfirmModal';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { SkeletonTemplateGallery, SkeletonExportModal, SkeletonModal } from './components/common/Skeleton';
+import { GuidedTour } from './components/GuidedTour';
 
 // Lazy load modals for better performance
 const TemplateGallery = lazy(() => import('./components/Templates/TemplateGallery'));
@@ -18,6 +19,8 @@ const TemplateBuilder = lazy(() => import('./components/TemplateBuilder/Template
 const TemplateEditor = lazy(() => import('./components/TemplateBuilder/TemplateEditor'));
 const ImportModal = lazy(() => import('./components/Editor/ImportModal'));
 const ShortcutsHelpModal = lazy(() => import('./components/common/ShortcutsHelpModal'));
+const ATSAnalyzerModal = lazy(() => import('./components/ATS/ATSAnalyzerModal'));
+const ImpactBuilderModal = lazy(() => import('./components/ImpactBuilder/ImpactBuilderModal'));
 
 // Loading fallback for modals with skeleton
 function ModalLoader({ type = 'default' }) {
@@ -51,7 +54,13 @@ function App() {
     showTemplateBuilder,
     showTemplateEditor,
     showImportModal,
-    showShortcutsHelpModal
+    showShortcutsHelpModal,
+    showATSAnalyzer,
+    closeATSAnalyzer,
+    showImpactBuilder,
+    impactBuilderText,
+    impactBuilderCallback,
+    closeImpactBuilder
   } = useUIStore();
 
   const { initTheme } = useThemeStore();
@@ -119,11 +128,34 @@ function App() {
           <ShortcutsHelpModal />
         </Suspense>
       )}
+      {showATSAnalyzer && (
+        <Suspense fallback={<SmallModalLoader />}>
+          <ATSAnalyzerModal isOpen={showATSAnalyzer} onClose={closeATSAnalyzer} />
+        </Suspense>
+      )}
+      {showImpactBuilder && (
+        <Suspense fallback={<SmallModalLoader />}>
+          <ImpactBuilderModal
+            isOpen={showImpactBuilder}
+            onClose={closeImpactBuilder}
+            initialText={impactBuilderText}
+            onApply={(newText) => {
+              if (impactBuilderCallback) {
+                impactBuilderCallback(newText);
+              }
+              closeImpactBuilder();
+            }}
+          />
+        </Suspense>
+      )}
 
       {/* Keyboard Shortcut Hint */}
-      <div className="fixed bottom-4 left-4 text-xs text-gray-400 hidden sm:block">
+      <div className="fixed bottom-4 left-4 text-xs text-gray-400 hidden sm:block" data-tour="shortcuts-hint">
         Press <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600 font-mono">?</kbd> for shortcuts
       </div>
+
+      {/* Guided Tour for First-time Users */}
+      <GuidedTour />
 
       {/* Confirm Dialog */}
       <ConfirmModal />
