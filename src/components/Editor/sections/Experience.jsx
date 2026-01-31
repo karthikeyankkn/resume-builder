@@ -17,10 +17,13 @@ export default function Experience() {
     setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  // Helper to safely get highlights array
+  const getHighlights = (exp) => Array.isArray(exp?.highlights) ? exp.highlights : [];
+
   const handleHighlightChange = (expId, index, value) => {
     const exp = resume.experience.find((e) => e.id === expId);
     if (exp) {
-      const highlights = [...exp.highlights];
+      const highlights = [...getHighlights(exp)];
       highlights[index] = value;
       updateExperience(expId, 'highlights', highlights);
     }
@@ -29,14 +32,14 @@ export default function Experience() {
   const addHighlight = (expId) => {
     const exp = resume.experience.find((e) => e.id === expId);
     if (exp) {
-      updateExperience(expId, 'highlights', [...exp.highlights, '']);
+      updateExperience(expId, 'highlights', [...getHighlights(exp), '']);
     }
   };
 
   const removeHighlight = (expId, index) => {
     const exp = resume.experience.find((e) => e.id === expId);
     if (exp) {
-      const highlights = exp.highlights.filter((_, i) => i !== index);
+      const highlights = getHighlights(exp).filter((_, i) => i !== index);
       updateExperience(expId, 'highlights', highlights);
     }
   };
@@ -215,7 +218,7 @@ export default function Experience() {
                 <div>
                   <label className="form-label">Key Achievements</label>
                   <div className="space-y-2">
-                    {exp.highlights.map((highlight, hIndex) => (
+                    {getHighlights(exp).map((highlight, hIndex) => (
                       <div key={hIndex} className="flex gap-2 items-center">
                         <input
                           type="text"

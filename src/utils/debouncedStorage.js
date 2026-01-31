@@ -4,6 +4,105 @@
 let storageErrorCallbacks = [];
 let lastStorageError = null;
 
+// Multi-tab synchronization
+const TAB_ID = `tab_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+let storageChangeCallbacks = [];
+let isMultiTabWarningShown = false;
+
+/**
+ * Register a callback to be notified when storage changes from another tab
+ * @param {function} callback - Called with { key, newValue, oldValue, tabId } when storage changes
+ * @returns {function} Unsubscribe function
+ */
+export function onStorageChange(callback) {
+  storageChangeCallbacks.push(callback);
+  return () => {
+    storageChangeCallbacks = storageChangeCallbacks.filter(cb => cb !== callback);
+  };
+}
+
+/**
+ * Check if the app is open in multiple tabs
+ * @returns {boolean}
+ */
+export function checkMultipleTabs() {
+  const tabKey = 'resume-builder-active-tabs';
+  try {
+    const tabs = JSON.parse(localStorage.getItem(tabKey) || '{}');
+    const now = Date.now();
+    // Clean up stale tabs (older than 30 seconds)
+    const activeTabs = Object.entries(tabs).filter(([, timestamp]) => now - timestamp < 30000);
+    return activeTabs.length > 1;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Register this tab as active (call periodically)
+ */
+function registerActiveTab() {
+  const tabKey = 'resume-builder-active-tabs';
+  try {
+    const tabs = JSON.parse(localStorage.getItem(tabKey) || '{}');
+    const now = Date.now();
+    // Clean up stale tabs and add current tab
+    const activeTabs = Object.entries(tabs)
+      .filter(([, timestamp]) => now - timestamp < 30000)
+      .reduce((acc, [id, ts]) => ({ ...acc, [id]: ts }), {});
+    activeTabs[TAB_ID] = now;
+    localStorage.setItem(tabKey, JSON.stringify(activeTabs));
+  } catch {
+    // Ignore errors
+  }
+}
+
+/**
+ * Unregister this tab when closing
+ */
+function unregisterTab() {
+  const tabKey = 'resume-builder-active-tabs';
+  try {
+    const tabs = JSON.parse(localStorage.getItem(tabKey) || '{}');
+    delete tabs[TAB_ID];
+    localStorage.setItem(tabKey, JSON.stringify(tabs));
+  } catch {
+    // Ignore errors
+  }
+}
+
+// Set up storage event listener for cross-tab communication
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    // Ignore our tab tracking key
+    if (event.key === 'resume-builder-active-tabs') return;
+
+    // Notify callbacks about storage change from another tab
+    if (event.key && storageChangeCallbacks.length > 0) {
+      const changeEvent = {
+        key: event.key,
+        newValue: event.newValue,
+        oldValue: event.oldValue,
+        fromOtherTab: true
+      };
+      storageChangeCallbacks.forEach(cb => {
+        try {
+          cb(changeEvent);
+        } catch (e) {
+          console.error('Storage change callback failed:', e);
+        }
+      });
+    }
+  });
+
+  // Register tab on load and periodically
+  registerActiveTab();
+  setInterval(registerActiveTab, 10000); // Update every 10 seconds
+
+  // Unregister on page unload
+  window.addEventListener('beforeunload', unregisterTab);
+}
+
 /**
  * Register a callback to be notified of storage errors
  * @param {function} callback - Called with error object when storage fails

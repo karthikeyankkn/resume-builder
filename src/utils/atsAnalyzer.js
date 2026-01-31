@@ -138,6 +138,110 @@ export const TECHNICAL_SKILLS = {
 };
 
 /**
+ * Synonym mappings for common technical terms
+ * Key is the canonical form, values are synonyms that should match
+ */
+const SYNONYMS = {
+  // API variations
+  'rest api': ['restful api', 'restful apis', 'rest apis', 'restful', 'rest'],
+  'api': ['apis', 'web api', 'web apis'],
+
+  // JavaScript/TypeScript
+  'javascript': ['js', 'ecmascript', 'es6', 'es2015', 'es2020', 'es2021'],
+  'typescript': ['ts'],
+
+  // React variations
+  'react': ['reactjs', 'react.js', 'react js'],
+  'react native': ['react-native', 'reactnative'],
+
+  // Vue variations
+  'vue': ['vuejs', 'vue.js', 'vue js'],
+
+  // Angular variations
+  'angular': ['angularjs', 'angular.js', 'angular js'],
+
+  // Node variations
+  'node.js': ['nodejs', 'node js', 'node'],
+
+  // Database terms
+  'postgresql': ['postgres', 'psql'],
+  'mongodb': ['mongo'],
+  'sql server': ['mssql', 'microsoft sql server'],
+
+  // Cloud platforms
+  'aws': ['amazon web services', 'amazon aws'],
+  'gcp': ['google cloud', 'google cloud platform'],
+  'azure': ['microsoft azure', 'ms azure'],
+
+  // DevOps terms
+  'ci/cd': ['cicd', 'ci cd', 'continuous integration', 'continuous deployment'],
+  'kubernetes': ['k8s', 'kube'],
+
+  // Agile terms
+  'agile': ['agile methodology', 'agile development', 'agile scrum'],
+  'scrum': ['scrum master', 'scrum methodology'],
+
+  // Experience terms
+  'experience': ['exp', 'years experience', 'years of experience'],
+  'full stack': ['fullstack', 'full-stack'],
+  'front end': ['frontend', 'front-end'],
+  'back end': ['backend', 'back-end'],
+
+  // Other common synonyms
+  'machine learning': ['ml', 'machine-learning'],
+  'artificial intelligence': ['ai', 'a.i.'],
+  'natural language processing': ['nlp'],
+  'user experience': ['ux', 'user-experience'],
+  'user interface': ['ui', 'user-interface'],
+};
+
+/**
+ * Get all synonyms for a term (including the term itself)
+ * @param {string} term - The term to find synonyms for
+ * @returns {string[]} - Array of synonyms including the original term
+ */
+function getSynonyms(term) {
+  const termLower = term.toLowerCase();
+  const synonyms = [termLower];
+
+  // Check if this term is a canonical form
+  if (SYNONYMS[termLower]) {
+    synonyms.push(...SYNONYMS[termLower]);
+  }
+
+  // Check if this term is a synonym of another canonical form
+  for (const [canonical, synList] of Object.entries(SYNONYMS)) {
+    if (synList.includes(termLower)) {
+      synonyms.push(canonical);
+      synonyms.push(...synList.filter(s => s !== termLower));
+    }
+  }
+
+  return [...new Set(synonyms)];
+}
+
+/**
+ * Check if two terms match (considering synonyms)
+ * @param {string} term1 - First term
+ * @param {string} term2 - Second term
+ * @returns {boolean} - True if terms match or are synonyms
+ */
+export function termsMatch(term1, term2) {
+  const t1Lower = term1.toLowerCase();
+  const t2Lower = term2.toLowerCase();
+
+  // Direct match
+  if (t1Lower === t2Lower) return true;
+
+  // Check synonyms
+  const synonyms1 = getSynonyms(term1);
+  const synonyms2 = getSynonyms(term2);
+
+  // Check if any synonym of term1 matches term2 or its synonyms
+  return synonyms1.some(s1 => synonyms2.some(s2 => s1 === s2));
+}
+
+/**
  * Extract keywords from text
  * @param {string} text - Input text to analyze
  * @returns {Object} - Object with technical, general, and phrases sets
@@ -233,17 +337,28 @@ export function calculateATSScore(jobKeywords, resumeKeywords) {
   let totalWeight = 0;
   let matchedWeight = 0;
 
-  // Helper to check if keyword exists in resume (case-insensitive)
+  // Helper to check if keyword exists in resume (case-insensitive, synonym-aware)
   const resumeHas = (keyword, type) => {
-    const keywordLower = keyword.toLowerCase();
     if (type === 'technical') {
-      return [...resumeKeywords.technical].some(k => k.toLowerCase() === keywordLower) ||
-             [...resumeKeywords.general].some(k => k.toLowerCase() === keywordLower);
+      // Check technical skills with synonym support
+      return [...resumeKeywords.technical].some(k => termsMatch(k, keyword)) ||
+             [...resumeKeywords.general].some(k => termsMatch(k, keyword));
     }
     if (type === 'phrases') {
-      return [...resumeKeywords.phrases].some(p => p.toLowerCase().includes(keywordLower) || keywordLower.includes(p.toLowerCase()));
+      // Check phrases with synonym support for individual words
+      const keywordLower = keyword.toLowerCase();
+      return [...resumeKeywords.phrases].some(p => {
+        const phraseLower = p.toLowerCase();
+        // Direct match or contains
+        if (phraseLower.includes(keywordLower) || keywordLower.includes(phraseLower)) {
+          return true;
+        }
+        // Check if key terms in the phrase match via synonyms
+        return termsMatch(p, keyword);
+      });
     }
-    return [...resumeKeywords.general].some(k => k.toLowerCase() === keywordLower);
+    // General keywords with synonym support
+    return [...resumeKeywords.general].some(k => termsMatch(k, keyword));
   };
 
   // Compare technical skills

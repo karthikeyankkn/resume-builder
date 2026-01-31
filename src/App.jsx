@@ -10,6 +10,7 @@ import ToastProvider from './components/common/ToastProvider';
 import ConfirmModal from './components/common/ConfirmModal';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import StorageErrorNotification from './components/common/StorageErrorNotification';
+import MultiTabWarning from './components/common/MultiTabWarning';
 import { SkeletonTemplateGallery, SkeletonExportModal, SkeletonModal } from './components/common/Skeleton';
 import { GuidedTour } from './components/GuidedTour';
 
@@ -82,6 +83,7 @@ function App() {
         </ErrorBoundary>
         <ToastProvider />
         <StorageErrorNotification />
+        <MultiTabWarning />
         <main className="flex-1 overflow-hidden">
           <ErrorBoundary>
             <SplitPane

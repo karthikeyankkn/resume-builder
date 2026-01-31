@@ -70,6 +70,40 @@ export function validatePhone(phone) {
 }
 
 /**
+ * Validates a date string in YYYY-MM format
+ * @param {string} dateStr - Date string to validate
+ * @returns {{ valid: boolean, error?: string, date?: Date }}
+ */
+export function validateDate(dateStr) {
+  if (!dateStr || !dateStr.trim()) {
+    return { valid: true }; // Empty is valid (optional field)
+  }
+
+  // Check format: YYYY-MM
+  const datePattern = /^\d{4}-(0[1-9]|1[0-2])$/;
+  if (!datePattern.test(dateStr)) {
+    return { valid: false, error: 'Date must be in YYYY-MM format' };
+  }
+
+  // Parse and validate the date
+  const date = new Date(dateStr + '-01');
+
+  // Check if the date is valid (not "Invalid Date")
+  if (isNaN(date.getTime())) {
+    return { valid: false, error: 'Invalid date' };
+  }
+
+  // Check reasonable year range (1900 to 10 years from now)
+  const year = parseInt(dateStr.substring(0, 4), 10);
+  const currentYear = new Date().getFullYear();
+  if (year < 1900 || year > currentYear + 10) {
+    return { valid: false, error: `Year must be between 1900 and ${currentYear + 10}` };
+  }
+
+  return { valid: true, date };
+}
+
+/**
  * Validates that start date is before end date
  * @param {string} startDate - Start date in YYYY-MM format
  * @param {string} endDate - End date in YYYY-MM format
@@ -80,6 +114,21 @@ export function validateDateRange(startDate, endDate, isCurrent = false) {
   // If both are empty, that's valid
   if (!startDate && !endDate) {
     return { valid: true };
+  }
+
+  // Validate individual dates first
+  if (startDate) {
+    const startValidation = validateDate(startDate);
+    if (!startValidation.valid) {
+      return { valid: false, error: `Start date: ${startValidation.error}` };
+    }
+  }
+
+  if (endDate && !isCurrent) {
+    const endValidation = validateDate(endDate);
+    if (!endValidation.valid) {
+      return { valid: false, error: `End date: ${endValidation.error}` };
+    }
   }
 
   // If current position, no need to check end date
@@ -98,6 +147,26 @@ export function validateDateRange(startDate, endDate, isCurrent = false) {
   }
 
   return { valid: true };
+}
+
+/**
+ * Safely formats a date string, returning empty string for invalid dates
+ * @param {string} dateStr - Date string in YYYY-MM format
+ * @param {object} options - Intl.DateTimeFormat options
+ * @returns {string} Formatted date or empty string
+ */
+export function formatDateSafe(dateStr, options = { month: 'short', year: 'numeric' }) {
+  if (!dateStr) return '';
+
+  const validation = validateDate(dateStr);
+  if (!validation.valid) return '';
+
+  try {
+    const date = new Date(dateStr + '-01');
+    return date.toLocaleDateString('en-US', options);
+  } catch {
+    return '';
+  }
 }
 
 /**

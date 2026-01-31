@@ -13,10 +13,16 @@ export default function Projects() {
     setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  // Helper to safely get highlights array
+  const getHighlights = (project) => Array.isArray(project?.highlights) ? project.highlights : [];
+
+  // Helper to safely get technologies array
+  const getTechnologies = (project) => Array.isArray(project?.technologies) ? project.technologies : [];
+
   const handleHighlightChange = (projectId, index, value) => {
     const project = resume.projects.find((p) => p.id === projectId);
     if (project) {
-      const highlights = [...project.highlights];
+      const highlights = [...getHighlights(project)];
       highlights[index] = value;
       updateProject(projectId, 'highlights', highlights);
     }
@@ -25,14 +31,14 @@ export default function Projects() {
   const addHighlight = (projectId) => {
     const project = resume.projects.find((p) => p.id === projectId);
     if (project) {
-      updateProject(projectId, 'highlights', [...project.highlights, '']);
+      updateProject(projectId, 'highlights', [...getHighlights(project), '']);
     }
   };
 
   const removeHighlight = (projectId, index) => {
     const project = resume.projects.find((p) => p.id === projectId);
     if (project) {
-      const highlights = project.highlights.filter((_, i) => i !== index);
+      const highlights = getHighlights(project).filter((_, i) => i !== index);
       updateProject(projectId, 'highlights', highlights);
     }
   };
@@ -86,7 +92,7 @@ export default function Projects() {
                   {project.name || 'New Project'}
                 </p>
                 <p className="text-sm text-gray-500 truncate">
-                  {project.technologies.slice(0, 3).join(', ') || 'No technologies'}
+                  {getTechnologies(project).slice(0, 3).join(', ') || 'No technologies'}
                 </p>
               </div>
               <button
@@ -157,7 +163,7 @@ export default function Projects() {
                 <div>
                   <label className="form-label">Technologies Used</label>
                   <TagInput
-                    tags={project.technologies}
+                    tags={getTechnologies(project)}
                     onChange={(newTechnologies) => updateProject(project.id, 'technologies', newTechnologies)}
                     placeholder="Type technology and press Enter or comma"
                   />
@@ -167,7 +173,7 @@ export default function Projects() {
                 <div>
                   <label className="form-label">Key Features/Achievements</label>
                   <div className="space-y-2">
-                    {project.highlights.map((highlight, hIndex) => (
+                    {getHighlights(project).map((highlight, hIndex) => (
                       <div key={hIndex} className="flex gap-2">
                         <input
                           type="text"

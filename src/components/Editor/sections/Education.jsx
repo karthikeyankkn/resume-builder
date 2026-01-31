@@ -14,10 +14,13 @@ export default function Education() {
     setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  // Helper to safely get highlights array
+  const getHighlights = (edu) => Array.isArray(edu?.highlights) ? edu.highlights : [];
+
   const handleHighlightChange = (eduId, index, value) => {
     const edu = resume.education.find((e) => e.id === eduId);
     if (edu) {
-      const highlights = [...edu.highlights];
+      const highlights = [...getHighlights(edu)];
       highlights[index] = value;
       updateEducation(eduId, 'highlights', highlights);
     }
@@ -26,14 +29,14 @@ export default function Education() {
   const addHighlight = (eduId) => {
     const edu = resume.education.find((e) => e.id === eduId);
     if (edu) {
-      updateEducation(eduId, 'highlights', [...edu.highlights, '']);
+      updateEducation(eduId, 'highlights', [...getHighlights(edu), '']);
     }
   };
 
   const removeHighlight = (eduId, index) => {
     const edu = resume.education.find((e) => e.id === eduId);
     if (edu) {
-      const highlights = edu.highlights.filter((_, i) => i !== index);
+      const highlights = getHighlights(edu).filter((_, i) => i !== index);
       updateEducation(eduId, 'highlights', highlights);
     }
   };
@@ -195,7 +198,7 @@ export default function Education() {
                 <div>
                   <label className="form-label">Highlights/Achievements</label>
                   <div className="space-y-2">
-                    {edu.highlights.map((highlight, hIndex) => (
+                    {getHighlights(edu).map((highlight, hIndex) => (
                       <div key={hIndex} className="flex gap-2">
                         <input
                           type="text"

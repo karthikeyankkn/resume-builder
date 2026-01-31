@@ -14,32 +14,61 @@ import { splitTextByNewlines } from '../../utils/textUtils';
 // Disable hyphenation to avoid potential issues
 Font.registerHyphenationCallback(word => [word]);
 
-// Register fonts with error handling
-try {
-  Font.register({
-    family: 'Inter',
-    fonts: [
-      {
-        src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2',
-        fontWeight: 400
-      },
-      {
-        src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hjp-Ek-_EeA.woff2',
-        fontWeight: 500
-      },
-      {
-        src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hjp-Ek-_EeA.woff2',
-        fontWeight: 600
-      },
-      {
-        src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hjp-Ek-_EeA.woff2',
-        fontWeight: 700
-      }
-    ]
-  });
-} catch (e) {
-  console.warn('Failed to register Inter font, using fallback:', e);
-}
+// Track font loading status
+let fontsLoaded = false;
+let fontLoadError = null;
+
+// Register fonts with error handling and offline fallback
+const registerFonts = () => {
+  try {
+    Font.register({
+      family: 'Inter',
+      fonts: [
+        {
+          src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2',
+          fontWeight: 400
+        },
+        {
+          src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hjp-Ek-_EeA.woff2',
+          fontWeight: 500
+        },
+        {
+          src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hjp-Ek-_EeA.woff2',
+          fontWeight: 600
+        },
+        {
+          src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hjp-Ek-_EeA.woff2',
+          fontWeight: 700
+        }
+      ]
+    });
+    fontsLoaded = true;
+  } catch (e) {
+    fontLoadError = e;
+    console.warn('Failed to register Inter font, using system fallback:', e);
+  }
+};
+
+// Attempt to register fonts
+registerFonts();
+
+// System font fallback stack for offline/error scenarios
+const FALLBACK_FONT_FAMILY = 'Helvetica';
+
+// Helper to get font family with fallback
+const getFontFamily = (preferredFont) => {
+  // If fonts failed to load or we're offline, use system fonts
+  if (fontLoadError || !fontsLoaded) {
+    return FALLBACK_FONT_FAMILY;
+  }
+  // Map custom fonts to registered fonts or fallbacks
+  const fontMap = {
+    'Inter': 'Inter',
+    'Merriweather': 'Times-Roman', // Fallback for serif
+    'default': FALLBACK_FONT_FAMILY
+  };
+  return fontMap[preferredFont] || fontMap['default'];
+};
 
 // Helper to format date
 const formatDate = (dateStr) => {
@@ -145,10 +174,13 @@ export default function ResumePDF({ resume, template }) {
   const skillBarColor = templateColors.skillBar || '#800080';
   const accentColor = templateColors.accent || '#2E8B57';
 
+  // Get font family with fallback for offline scenarios
+  const bodyFont = getFontFamily(templateFonts.body || 'Inter');
+
   // Create styles based on template
   const styles = StyleSheet.create({
     page: {
-      fontFamily: 'Helvetica',
+      fontFamily: bodyFont,
       fontSize: fontSizes.body,
       paddingTop: 30,
       paddingBottom: 30,

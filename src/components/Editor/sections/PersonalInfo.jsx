@@ -177,37 +177,43 @@ export default function PersonalInfo() {
       {/* Contact Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="form-label flex items-center gap-1">
+          <label htmlFor="email-input" className="form-label flex items-center gap-1">
             <Mail className="w-3.5 h-3.5" /> Email *
           </label>
           <input
+            id="email-input"
             type="email"
             value={personalInfo.email}
             onChange={(e) => updatePersonalInfo('email', e.target.value)}
             placeholder="john@example.com"
             className={`form-input ${!validationErrors.email.valid ? 'error' : ''}`}
+            aria-invalid={!validationErrors.email.valid}
+            aria-describedby={!validationErrors.email.valid ? 'email-error' : undefined}
           />
           {!validationErrors.email.valid && (
-            <p className="form-error">
-              <AlertCircle className="w-3 h-3" />
+            <p id="email-error" className="form-error" role="alert">
+              <AlertCircle className="w-3 h-3" aria-hidden="true" />
               {validationErrors.email.error}
             </p>
           )}
         </div>
         <div>
-          <label className="form-label flex items-center gap-1">
+          <label htmlFor="phone-input" className="form-label flex items-center gap-1">
             <Phone className="w-3.5 h-3.5" /> Phone
           </label>
           <input
+            id="phone-input"
             type="tel"
             value={personalInfo.phone}
             onChange={(e) => updatePersonalInfo('phone', e.target.value)}
             placeholder="+1 (555) 123-4567"
             className={`form-input ${!validationErrors.phone.valid ? 'error' : ''}`}
+            aria-invalid={!validationErrors.phone.valid}
+            aria-describedby={!validationErrors.phone.valid ? 'phone-error' : undefined}
           />
           {!validationErrors.phone.valid && (
-            <p className="form-error">
-              <AlertCircle className="w-3 h-3" />
+            <p id="phone-error" className="form-error" role="alert">
+              <AlertCircle className="w-3 h-3" aria-hidden="true" />
               {validationErrors.phone.error}
             </p>
           )}
@@ -231,55 +237,64 @@ export default function PersonalInfo() {
       {/* Social Links */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="form-label flex items-center gap-1">
+          <label htmlFor="linkedin-input" className="form-label flex items-center gap-1">
             <Linkedin className="w-3.5 h-3.5" /> LinkedIn
           </label>
           <input
+            id="linkedin-input"
             type="text"
             value={personalInfo.linkedIn}
             onChange={(e) => updatePersonalInfo('linkedIn', e.target.value)}
             placeholder="linkedin.com/in/username"
             className={`form-input ${!validationErrors.linkedIn.valid ? 'error' : ''}`}
+            aria-invalid={!validationErrors.linkedIn.valid}
+            aria-describedby={!validationErrors.linkedIn.valid ? 'linkedin-error' : undefined}
           />
           {!validationErrors.linkedIn.valid && (
-            <p className="form-error">
-              <AlertCircle className="w-3 h-3" />
+            <p id="linkedin-error" className="form-error" role="alert">
+              <AlertCircle className="w-3 h-3" aria-hidden="true" />
               {validationErrors.linkedIn.error}
             </p>
           )}
         </div>
         <div>
-          <label className="form-label flex items-center gap-1">
+          <label htmlFor="github-input" className="form-label flex items-center gap-1">
             <Github className="w-3.5 h-3.5" /> GitHub
           </label>
           <input
+            id="github-input"
             type="text"
             value={personalInfo.github}
             onChange={(e) => updatePersonalInfo('github', e.target.value)}
             placeholder="github.com/username"
             className={`form-input ${!validationErrors.github.valid ? 'error' : ''}`}
+            aria-invalid={!validationErrors.github.valid}
+            aria-describedby={!validationErrors.github.valid ? 'github-error' : undefined}
           />
           {!validationErrors.github.valid && (
-            <p className="form-error">
-              <AlertCircle className="w-3 h-3" />
+            <p id="github-error" className="form-error" role="alert">
+              <AlertCircle className="w-3 h-3" aria-hidden="true" />
               {validationErrors.github.error}
             </p>
           )}
         </div>
         <div>
-          <label className="form-label flex items-center gap-1">
+          <label htmlFor="portfolio-input" className="form-label flex items-center gap-1">
             <Globe className="w-3.5 h-3.5" /> Portfolio
           </label>
           <input
+            id="portfolio-input"
             type="text"
             value={personalInfo.portfolio}
             onChange={(e) => updatePersonalInfo('portfolio', e.target.value)}
             placeholder="yourwebsite.com"
             className={`form-input ${!validationErrors.portfolio.valid ? 'error' : ''}`}
+            aria-invalid={!validationErrors.portfolio.valid}
+            aria-describedby={!validationErrors.portfolio.valid ? 'portfolio-error' : undefined}
           />
           {!validationErrors.portfolio.valid && (
-            <p className="form-error">
-              <AlertCircle className="w-3 h-3" />
+            <p id="portfolio-error" className="form-error" role="alert">
+              <AlertCircle className="w-3 h-3" aria-hidden="true" />
               {validationErrors.portfolio.error}
             </p>
           )}

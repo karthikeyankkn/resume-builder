@@ -6,6 +6,7 @@ import { useTemplateStore } from '../../store/templateStore';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import ResumePDF from './ResumePDF';
 import { validateResume } from '../../utils/validationUtils';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 export default function ExportModal() {
   const { closeExportModal } = useUIStore();
@@ -16,6 +17,9 @@ export default function ExportModal() {
   const [showPreview, setShowPreview] = useState(false);
   const [acknowledgedIssues, setAcknowledgedIssues] = useState(false);
   const [showIssueDetails, setShowIssueDetails] = useState(false);
+
+  // Focus trap for accessibility
+  const modalRef = useFocusTrap(true, { onEscape: closeExportModal });
 
   // Validate resume
   const validation = useMemo(() => validateResume(resume), [resume]);
@@ -39,11 +43,13 @@ export default function ExportModal() {
   return (
     <div className="modal-overlay" onClick={closeExportModal} role="presentation">
       <div
+        ref={modalRef}
         className="modal-content w-full max-w-4xl mx-4 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="export-modal-title"
+        tabIndex={-1}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b bg-gray-50 rounded-t-xl">

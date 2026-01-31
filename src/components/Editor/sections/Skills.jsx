@@ -10,8 +10,16 @@ export default function Skills() {
 
   const addSkillToCategory = (categoryId, skill) => {
     const category = resume.skills.categories.find((c) => c.id === categoryId);
-    if (category && skill.trim() && !category.items.includes(skill.trim())) {
-      updateSkillCategory(categoryId, 'items', [...category.items, skill.trim()]);
+    if (!category || !skill.trim()) return;
+
+    // Case-insensitive duplicate check
+    const normalizedSkill = skill.trim();
+    const isDuplicate = category.items.some(
+      (existingSkill) => existingSkill.toLowerCase() === normalizedSkill.toLowerCase()
+    );
+
+    if (!isDuplicate) {
+      updateSkillCategory(categoryId, 'items', [...category.items, normalizedSkill]);
     }
   };
 
