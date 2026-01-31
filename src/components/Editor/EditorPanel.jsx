@@ -30,8 +30,12 @@ function AccordionSection({
   onToggle,
   children,
   sectionRef,
-  isHighlighted
+  isHighlighted,
+  sectionId
 }) {
+  const headingId = `accordion-header-${sectionId}`;
+  const contentId = `accordion-content-${sectionId}`;
+
   return (
     <div
       ref={sectionRef}
@@ -41,7 +45,10 @@ function AccordionSection({
     >
       {/* Accordion Header */}
       <button
+        id={headingId}
         onClick={onToggle}
+        aria-expanded={isExpanded}
+        aria-controls={contentId}
         className={`w-full px-4 py-3 flex items-center justify-between transition-colors ${
           isExpanded
             ? 'bg-primary-50 border-b border-primary-100'
@@ -50,7 +57,7 @@ function AccordionSection({
       >
         <div className="flex items-center gap-3">
           <div className={`p-1.5 rounded-md ${isExpanded ? 'bg-primary-100' : 'bg-gray-100'}`}>
-            <Icon className={`w-4 h-4 ${isExpanded ? 'text-primary-600' : 'text-gray-500'}`} />
+            <Icon className={`w-4 h-4 ${isExpanded ? 'text-primary-600' : 'text-gray-500'}`} aria-hidden="true" />
           </div>
           <span className={`font-medium ${isExpanded ? 'text-primary-700' : 'text-gray-700'}`}>
             {title}
@@ -60,11 +67,16 @@ function AccordionSection({
           className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
             isExpanded ? 'rotate-180' : ''
           }`}
+          aria-hidden="true"
         />
       </button>
 
       {/* Accordion Content */}
       <div
+        id={contentId}
+        role="region"
+        aria-labelledby={headingId}
+        hidden={!isExpanded}
         className={`transition-all duration-300 ease-in-out ${
           isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
         }`}
@@ -186,6 +198,7 @@ export default function EditorPanel() {
           return (
             <AccordionSection
               key={section.id}
+              sectionId={section.id}
               title={section.title}
               icon={section.icon}
               isExpanded={expandedSection === section.id}
@@ -204,6 +217,7 @@ export default function EditorPanel() {
             {resume.customSections.map((section) => (
               <AccordionSection
                 key={section.id}
+                sectionId={`custom-${section.id}`}
                 title={section.title || 'Custom Section'}
                 icon={LayoutList}
                 isExpanded={expandedSection === `custom-${section.id}`}

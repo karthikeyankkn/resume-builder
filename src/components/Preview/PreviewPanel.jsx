@@ -60,13 +60,14 @@ export default function PreviewPanel() {
         <span className="text-sm text-gray-600">
           Preview
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" role="group" aria-label="Zoom controls">
           <button
             onClick={zoomOut}
             className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
             title="Zoom Out"
+            aria-label={`Zoom out (current: ${zoom}%)`}
           >
-            <ZoomOut className="w-4 h-4" />
+            <ZoomOut className="w-4 h-4" aria-hidden="true" />
           </button>
           <input
             type="range"
@@ -75,29 +76,37 @@ export default function PreviewPanel() {
             value={zoom}
             onChange={(e) => setZoom(Number(e.target.value))}
             className="w-24 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            aria-label={`Zoom level: ${zoom}%`}
           />
           <button
             onClick={zoomIn}
             className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
             title="Zoom In"
+            aria-label={`Zoom in (current: ${zoom}%)`}
           >
-            <ZoomIn className="w-4 h-4" />
+            <ZoomIn className="w-4 h-4" aria-hidden="true" />
           </button>
-          <span className="text-xs text-gray-500 w-10 text-right">
+          <span className="text-xs text-gray-500 w-10 text-right" aria-hidden="true">
             {zoom}%
           </span>
           <button
             onClick={() => setZoom(100)}
             className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded ml-1"
             title="Reset Zoom"
+            aria-label="Reset zoom to 100%"
           >
-            <Maximize2 className="w-4 h-4" />
+            <Maximize2 className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       </div>
 
       {/* Preview Container - Shows multiple A4 pages like PDF viewer */}
-      <div className="flex-1 overflow-auto p-6 bg-gray-300 dark:bg-gray-800 transition-colors">
+      <div
+        className="flex-1 overflow-auto p-6 bg-gray-300 dark:bg-gray-800 transition-colors"
+        role="region"
+        aria-label="Resume preview"
+        aria-live="polite"
+      >
         <div
           className="flex flex-col items-center gap-6"
           style={{

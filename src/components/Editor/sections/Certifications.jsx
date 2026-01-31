@@ -1,10 +1,12 @@
 import { Plus, Trash2, ChevronDown, ChevronUp, Link } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
+import { useConfirm } from '../../../store/confirmStore';
 import MonthPicker from '../../common/MonthPicker';
 
 export default function Certifications() {
   const { resume, addCertification, updateCertification, removeCertification } = useResumeStore();
+  const { confirm } = useConfirm();
   const [expandedItems, setExpandedItems] = useState({});
 
   const toggleExpand = (id) => {
@@ -43,13 +45,21 @@ export default function Certifications() {
                 </p>
               </div>
               <button
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  if (confirm('Delete this certification?')) {
+                  const confirmed = await confirm({
+                    title: 'Delete Certification',
+                    message: `Are you sure you want to delete "${cert.name || 'this certification'}"? This action cannot be undone.`,
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel',
+                    variant: 'danger',
+                  });
+                  if (confirmed) {
                     removeCertification(cert.id);
                   }
                 }}
                 className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                aria-label={`Delete ${cert.name || 'certification'}`}
               >
                 <Trash2 className="w-4 h-4" />
               </button>

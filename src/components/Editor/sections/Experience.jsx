@@ -1,10 +1,12 @@
 import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
+import { useConfirm } from '../../../store/confirmStore';
 import MonthPicker from '../../common/MonthPicker';
 
 export default function Experience() {
   const { resume, addExperience, updateExperience, removeExperience } = useResumeStore();
+  const { confirm } = useConfirm();
   const [expandedItems, setExpandedItems] = useState({});
 
   const toggleExpand = (id) => {
@@ -68,13 +70,21 @@ export default function Experience() {
                 </p>
               </div>
               <button
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  if (confirm('Delete this experience?')) {
+                  const confirmed = await confirm({
+                    title: 'Delete Experience',
+                    message: `Are you sure you want to delete "${exp.position || 'this experience'}" at "${exp.company || 'this company'}"? This action cannot be undone.`,
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel',
+                    variant: 'danger',
+                  });
+                  if (confirmed) {
                     removeExperience(exp.id);
                   }
                 }}
                 className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                aria-label={`Delete ${exp.position || 'experience'}`}
               >
                 <Trash2 className="w-4 h-4" />
               </button>

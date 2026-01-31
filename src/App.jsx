@@ -7,6 +7,7 @@ import { useUIStore } from './store/uiStore';
 import { useThemeStore } from './store/themeStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ToastProvider from './components/common/ToastProvider';
+import ConfirmModal from './components/common/ConfirmModal';
 
 // Lazy load modals for better performance
 const TemplateGallery = lazy(() => import('./components/Templates/TemplateGallery'));
@@ -73,6 +74,9 @@ function App() {
       <div className="fixed bottom-4 left-4 text-xs text-gray-400 hidden sm:block">
         Press <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600 font-mono">?</kbd> for shortcuts
       </div>
+
+      {/* Confirm Dialog */}
+      <ConfirmModal />
     </div>
   );
 }

@@ -40,12 +40,21 @@ function ShortcutsHelpModal() {
   const { closeShortcutsHelpModal } = useUIStore();
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content w-full max-w-2xl">
+    <div className="modal-overlay" role="presentation">
+      <div
+        className="modal-content w-full max-w-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shortcuts-modal-title"
+      >
         <div className="flex items-center justify-between pb-3 border-b mb-4">
-          <h2 className="text-lg font-semibold">Keyboard Shortcuts</h2>
-          <button onClick={closeShortcutsHelpModal} className="p-1 rounded-full hover:bg-gray-100">
-            <X className="w-5 h-5 text-gray-500" />
+          <h2 id="shortcuts-modal-title" className="text-lg font-semibold">Keyboard Shortcuts</h2>
+          <button
+            onClick={closeShortcutsHelpModal}
+            className="p-1 rounded-full hover:bg-gray-100"
+            aria-label="Close shortcuts help"
+          >
+            <X className="w-5 h-5 text-gray-500" aria-hidden="true" />
           </button>
         </div>
 

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
+import { debouncedStorage } from '../utils/debouncedStorage';
 
 // Built-in templates
 const builtInTemplates = [
@@ -433,7 +434,12 @@ export const useTemplateStore = create(
     }),
     {
       name: 'template-storage',
-      version: 1
+      version: 1,
+      storage: debouncedStorage,
+      partialize: (state) => ({
+        customTemplates: state.customTemplates,
+        activeTemplate: state.activeTemplate
+      })
     }
   )
 );

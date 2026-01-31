@@ -28,16 +28,19 @@ export default function ExportModal() {
   };
 
   return (
-    <div className="modal-overlay" onClick={closeExportModal}>
+    <div className="modal-overlay" onClick={closeExportModal} role="presentation">
       <div
         className="modal-content w-full max-w-4xl mx-4 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="export-modal-title"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b bg-gray-50 rounded-t-xl">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-              <Download className="w-6 h-6 text-primary-600" />
+            <h2 id="export-modal-title" className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+              <Download className="w-6 h-6 text-primary-600" aria-hidden="true" />
               Export Resume
             </h2>
             <p className="text-sm text-gray-500 mt-1">Download your resume in various formats</p>
@@ -45,8 +48,9 @@ export default function ExportModal() {
           <button
             onClick={closeExportModal}
             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="Close export modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 

@@ -1,8 +1,10 @@
 import { Trash2, Plus } from 'lucide-react';
 import { useResumeStore } from '../../../store/resumeStore';
+import { useConfirm } from '../../../store/confirmStore';
 
 export default function CustomSection({ section }) {
   const { updateCustomSection, removeCustomSection } = useResumeStore();
+  const { confirm } = useConfirm();
 
   const handleAddItem = () => {
     const newContent = [...(section.content || []), { id: Date.now().toString(), text: '' }];
@@ -21,8 +23,15 @@ export default function CustomSection({ section }) {
     updateCustomSection(section.id, 'content', newContent);
   };
 
-  const handleDelete = () => {
-    if (confirm('Delete this custom section?')) {
+  const handleDelete = async () => {
+    const confirmed = await confirm({
+      title: 'Delete Custom Section',
+      message: `Are you sure you want to delete "${section.title || 'this section'}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      variant: 'danger',
+    });
+    if (confirmed) {
       removeCustomSection(section.id);
     }
   };

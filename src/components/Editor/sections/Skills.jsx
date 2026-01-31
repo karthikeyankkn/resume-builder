@@ -1,9 +1,11 @@
 import { Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
+import { useConfirm } from '../../../store/confirmStore';
 
 export default function Skills() {
   const { resume, addSkillCategory, updateSkillCategory, removeSkillCategory } = useResumeStore();
+  const { confirm } = useConfirm();
   const [newSkillInputs, setNewSkillInputs] = useState({});
 
   const handleAddSkill = (categoryId, e) => {
@@ -51,12 +53,20 @@ export default function Skills() {
                 className="form-input flex-1 font-medium"
               />
               <button
-                onClick={() => {
-                  if (confirm('Delete this skill category?')) {
+                onClick={async () => {
+                  const confirmed = await confirm({
+                    title: 'Delete Skill Category',
+                    message: `Are you sure you want to delete "${category.name || 'this category'}" and all its skills? This action cannot be undone.`,
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel',
+                    variant: 'danger',
+                  });
+                  if (confirmed) {
                     removeSkillCategory(category.id);
                   }
                 }}
                 className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                aria-label={`Delete ${category.name || 'skill category'}`}
               >
                 <Trash2 className="w-4 h-4" />
               </button>

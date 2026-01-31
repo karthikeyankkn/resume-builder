@@ -2,6 +2,7 @@ import { X, Check, Trash2, Copy, ImagePlus, Palette, Pencil } from 'lucide-react
 import { useUIStore } from '../../store/uiStore';
 import { useTemplateStore } from '../../store/templateStore';
 import { useResumeStore } from '../../store/resumeStore';
+import { useConfirm } from '../../store/confirmStore';
 
 // Helper to determine if a color is dark
 function isDarkColor(color) {
@@ -319,6 +320,7 @@ export default function TemplateGallery() {
   const { closeTemplateGallery, openTemplateBuilder, openTemplateEditor } = useUIStore();
   const { getAllTemplates, activeTemplate, setActiveTemplate, deleteCustomTemplate, duplicateTemplate } = useTemplateStore();
   const { setTemplate } = useResumeStore();
+  const { confirm } = useConfirm();
 
   const templates = getAllTemplates();
   const builtInTemplates = templates.filter((t) => !t.isCustom);
@@ -329,8 +331,16 @@ export default function TemplateGallery() {
     setTemplate(templateId);
   };
 
-  const handleDelete = (templateId) => {
-    if (confirm('Delete this custom template?')) {
+  const handleDelete = async (templateId) => {
+    const template = templates.find(t => t.id === templateId);
+    const confirmed = await confirm({
+      title: 'Delete Custom Template',
+      message: `Are you sure you want to delete "${template?.name || 'this template'}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      variant: 'danger',
+    });
+    if (confirmed) {
       deleteCustomTemplate(templateId);
     }
   };
@@ -350,16 +360,19 @@ export default function TemplateGallery() {
   };
 
   return (
-    <div className="modal-overlay" onClick={closeTemplateGallery}>
+    <div className="modal-overlay" onClick={closeTemplateGallery} role="presentation">
       <div
         className="modal-content w-full max-w-5xl mx-4 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="template-gallery-title"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b bg-gray-50 rounded-t-xl">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-              <Palette className="w-6 h-6 text-primary-600" />
+            <h2 id="template-gallery-title" className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+              <Palette className="w-6 h-6 text-primary-600" aria-hidden="true" />
               Template Gallery
             </h2>
             <p className="text-sm text-gray-500 mt-1">Choose a template that fits your style</p>
@@ -367,8 +380,9 @@ export default function TemplateGallery() {
           <button
             onClick={closeTemplateGallery}
             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="Close template gallery"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 

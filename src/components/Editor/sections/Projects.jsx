@@ -1,9 +1,11 @@
 import { Plus, Trash2, ChevronDown, ChevronUp, X, Link } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
+import { useConfirm } from '../../../store/confirmStore';
 
 export default function Projects() {
   const { resume, addProject, updateProject, removeProject } = useResumeStore();
+  const { confirm } = useConfirm();
   const [expandedItems, setExpandedItems] = useState({});
   const [newTechInputs, setNewTechInputs] = useState({});
 
@@ -85,13 +87,21 @@ export default function Projects() {
                 </p>
               </div>
               <button
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  if (confirm('Delete this project?')) {
+                  const confirmed = await confirm({
+                    title: 'Delete Project',
+                    message: `Are you sure you want to delete "${project.name || 'this project'}"? This action cannot be undone.`,
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel',
+                    variant: 'danger',
+                  });
+                  if (confirmed) {
                     removeProject(project.id);
                   }
                 }}
                 className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                aria-label={`Delete ${project.name || 'project'}`}
               >
                 <Trash2 className="w-4 h-4" />
               </button>

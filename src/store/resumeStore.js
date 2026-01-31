@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
+import { debouncedStorage } from '../utils/debouncedStorage';
 
 const defaultResume = {
   id: uuidv4(),
@@ -131,10 +132,19 @@ export const useResumeStore = create(
     (set, get) => ({
       resume: defaultResume,
       savedResumes: [],
+      isDirty: false,
+      lastSavedAt: null,
+
+      // Mark as dirty (unsaved changes)
+      markDirty: () => set({ isDirty: true }),
+
+      // Clear dirty flag
+      clearDirty: () => set({ isDirty: false, lastSavedAt: new Date().toISOString() }),
 
       // Update personal info
       updatePersonalInfo: (field, value) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             personalInfo: {
@@ -151,6 +161,7 @@ export const useResumeStore = create(
       // Experience CRUD
       addExperience: () =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             experience: [
@@ -172,6 +183,7 @@ export const useResumeStore = create(
 
       updateExperience: (id, field, value) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             experience: state.resume.experience.map((exp) =>
@@ -182,6 +194,7 @@ export const useResumeStore = create(
 
       removeExperience: (id) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             experience: state.resume.experience.filter((exp) => exp.id !== id)
@@ -193,12 +206,13 @@ export const useResumeStore = create(
           const experience = [...state.resume.experience];
           const [removed] = experience.splice(fromIndex, 1);
           experience.splice(toIndex, 0, removed);
-          return { resume: { ...state.resume, experience } };
+          return { isDirty: true, resume: { ...state.resume, experience } };
         }),
 
       // Education CRUD
       addEducation: () =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             education: [
@@ -219,6 +233,7 @@ export const useResumeStore = create(
 
       updateEducation: (id, field, value) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             education: state.resume.education.map((edu) =>
@@ -229,6 +244,7 @@ export const useResumeStore = create(
 
       removeEducation: (id) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             education: state.resume.education.filter((edu) => edu.id !== id)
@@ -238,6 +254,7 @@ export const useResumeStore = create(
       // Skills CRUD
       addSkillCategory: () =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             skills: {
@@ -251,6 +268,7 @@ export const useResumeStore = create(
 
       updateSkillCategory: (id, field, value) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             skills: {
@@ -263,6 +281,7 @@ export const useResumeStore = create(
 
       removeSkillCategory: (id) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             skills: {
@@ -274,6 +293,7 @@ export const useResumeStore = create(
       // Projects CRUD
       addProject: () =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             projects: [
@@ -292,6 +312,7 @@ export const useResumeStore = create(
 
       updateProject: (id, field, value) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             projects: state.resume.projects.map((proj) =>
@@ -302,6 +323,7 @@ export const useResumeStore = create(
 
       removeProject: (id) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             projects: state.resume.projects.filter((proj) => proj.id !== id)
@@ -311,6 +333,7 @@ export const useResumeStore = create(
       // Certifications CRUD
       addCertification: () =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             certifications: [
@@ -329,6 +352,7 @@ export const useResumeStore = create(
 
       updateCertification: (id, field, value) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             certifications: state.resume.certifications.map((cert) =>
@@ -339,6 +363,7 @@ export const useResumeStore = create(
 
       removeCertification: (id) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             certifications: state.resume.certifications.filter((cert) => cert.id !== id)
@@ -348,6 +373,7 @@ export const useResumeStore = create(
       // Custom Sections
       addCustomSection: () =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             customSections: [
@@ -364,6 +390,7 @@ export const useResumeStore = create(
 
       updateCustomSection: (id, field, value) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             customSections: state.resume.customSections.map((sec) =>
@@ -374,6 +401,7 @@ export const useResumeStore = create(
 
       removeCustomSection: (id) =>
         set((state) => ({
+          isDirty: true,
           resume: {
             ...state.resume,
             customSections: state.resume.customSections.filter((sec) => sec.id !== id)
@@ -385,7 +413,9 @@ export const useResumeStore = create(
         const state = get();
         const resume = { ...state.resume, id: uuidv4() };
         set({
-          savedResumes: [...state.savedResumes, resume]
+          savedResumes: [...state.savedResumes, resume],
+          isDirty: false,
+          lastSavedAt: new Date().toISOString()
         });
       },
 
@@ -403,7 +433,7 @@ export const useResumeStore = create(
         })),
 
       // Reset to default
-      resetResume: () => set({ resume: { ...defaultResume, id: uuidv4() } }),
+      resetResume: () => set({ resume: { ...defaultResume, id: uuidv4() }, isDirty: false, lastSavedAt: new Date().toISOString() }),
 
       // Import/Export
       exportResume: () => {
@@ -414,7 +444,7 @@ export const useResumeStore = create(
       importResume: (jsonString) => {
         try {
           const resume = JSON.parse(jsonString);
-          set({ resume: { ...resume, id: uuidv4() } });
+          set({ resume: { ...resume, id: uuidv4() }, isDirty: false, lastSavedAt: new Date().toISOString() });
           return true;
         } catch (e) {
           console.error('Failed to import resume:', e);
@@ -436,7 +466,12 @@ export const useResumeStore = create(
     }),
     {
       name: 'resume-storage',
-      version: 1
+      version: 1,
+      storage: debouncedStorage,
+      partialize: (state) => ({
+        resume: state.resume,
+        savedResumes: state.savedResumes
+      })
     }
   )
 );

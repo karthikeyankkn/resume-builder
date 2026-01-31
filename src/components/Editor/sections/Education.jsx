@@ -1,10 +1,12 @@
 import { Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
+import { useConfirm } from '../../../store/confirmStore';
 import MonthPicker from '../../common/MonthPicker';
 
 export default function Education() {
   const { resume, addEducation, updateEducation, removeEducation } = useResumeStore();
+  const { confirm } = useConfirm();
   const [expandedItems, setExpandedItems] = useState({});
 
   const toggleExpand = (id) => {
@@ -67,13 +69,21 @@ export default function Education() {
                 </p>
               </div>
               <button
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  if (confirm('Delete this education?')) {
+                  const confirmed = await confirm({
+                    title: 'Delete Education',
+                    message: `Are you sure you want to delete "${edu.degree || 'this education'}" from "${edu.institution || 'this institution'}"? This action cannot be undone.`,
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel',
+                    variant: 'danger',
+                  });
+                  if (confirmed) {
                     removeEducation(edu.id);
                   }
                 }}
                 className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                aria-label={`Delete ${edu.degree || 'education'}`}
               >
                 <Trash2 className="w-4 h-4" />
               </button>
