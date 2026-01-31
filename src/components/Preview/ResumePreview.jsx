@@ -29,6 +29,17 @@ function formatDate(dateStr) {
   return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 }
 
+// Check if a color is dark (for contrast calculation)
+function isDarkColor(hexColor) {
+  if (!hexColor || hexColor === 'transparent') return false;
+  const hex = hexColor.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness < 128;
+}
+
 export default function ResumePreview() {
   const { resume } = useResumeStore();
   const { getCurrentTemplate } = useTemplateStore();
@@ -42,15 +53,20 @@ export default function ResumePreview() {
   const sidebarPosition = layout?.sidebar?.position || 'right';
   const sidebarSections = layout?.sidebar?.sections || [];
 
+  // Check if header has dark background for contrast
+  const headerBg = colors?.headerBg || colors?.background || '#ffffff';
+  const hasHeader = headerBg && headerBg !== colors?.background;
+  const headerIsDark = isDarkColor(headerBg);
+
   // Dynamic styles based on template
   const styles = {
     page: {
       fontFamily: `${fonts?.body || 'Inter'}, Helvetica, Arial, sans-serif`,
       fontSize: fonts?.sizes?.body || '9px',
-      paddingTop: spacing?.padding || '30px',
+      paddingTop: hasHeader ? '0' : (spacing?.padding || '30px'),
       paddingBottom: spacing?.padding || '30px',
-      paddingLeft: spacing?.padding || '35px',
-      paddingRight: spacing?.padding || '35px',
+      paddingLeft: hasHeader ? '0' : (spacing?.padding || '35px'),
+      paddingRight: hasHeader ? '0' : (spacing?.padding || '35px'),
       backgroundColor: colors?.background || '#ffffff',
       color: colors?.text || '#1e293b',
       minHeight: '297mm',
@@ -58,7 +74,11 @@ export default function ResumePreview() {
     },
     header: {
       textAlign: layout?.headerStyle === 'centered' ? 'center' : 'left',
-      marginBottom: '12px'
+      marginBottom: '12px',
+      backgroundColor: headerBg,
+      padding: hasHeader ? (spacing?.padding || '30px') : '0',
+      marginLeft: hasHeader ? '0' : '0',
+      marginRight: hasHeader ? '0' : '0'
     },
     profileImage: {
       width: '60px',
@@ -66,18 +86,18 @@ export default function ResumePreview() {
       borderRadius: '30px',
       marginBottom: '8px',
       objectFit: 'cover',
-      border: `2px solid ${colors?.primary || '#2563eb'}`
+      border: `2px solid ${headerIsDark ? '#ffffff' : (colors?.primary || '#2563eb')}`
     },
     name: {
       fontSize: fonts?.sizes?.name || '20px',
       fontWeight: '700',
       fontFamily: `${fonts?.heading || 'Inter'}, Helvetica, Arial, sans-serif`,
-      color: colors?.text || '#1e293b',
+      color: headerIsDark ? '#ffffff' : (colors?.text || '#1e293b'),
       marginBottom: '2px'
     },
     title: {
       fontSize: fonts?.sizes?.title || '11px',
-      color: colors?.primary || '#2563eb',
+      color: headerIsDark ? (colors?.accent || '#93c5fd') : (colors?.primary || '#2563eb'),
       marginBottom: '6px'
     },
     contactRow: {
@@ -87,10 +107,10 @@ export default function ResumePreview() {
       flexWrap: 'wrap',
       gap: '10px',
       fontSize: '8px',
-      color: colors?.secondary || '#64748b'
+      color: headerIsDark ? 'rgba(255,255,255,0.8)' : (colors?.secondary || '#64748b')
     },
     contactLink: {
-      color: colors?.secondary || '#64748b',
+      color: headerIsDark ? 'rgba(255,255,255,0.8)' : (colors?.secondary || '#64748b'),
       textDecoration: 'none'
     },
     section: {
@@ -485,10 +505,17 @@ export default function ResumePreview() {
       certifications: certifications.length > 0 && renderCertifications()
     };
 
+    // Use template's section order, falling back to default order
+    const defaultOrder = ['summary', 'experience', 'education', 'skills', 'projects', 'certifications'];
+    const templateOrder = layout?.sectionOrder || defaultOrder;
+
+    // Filter to only sections that exist (excluding personalInfo which is in header)
+    const orderedKeys = templateOrder.filter(key => key !== 'personalInfo' && key in sections);
+
     // Filter out sidebar sections if using sidebar layout
     const mainSectionKeys = hasSidebar
-      ? Object.keys(sections).filter(key => !sidebarSections.includes(key))
-      : Object.keys(sections);
+      ? orderedKeys.filter(key => !sidebarSections.includes(key))
+      : orderedKeys;
 
     return mainSectionKeys.map(key => sections[key]);
   };
@@ -560,7 +587,11 @@ export default function ResumePreview() {
 
       {/* Content Layout */}
       {hasSidebar ? (
-        <div style={{ display: 'flex', gap: '16px' }}>
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          padding: hasHeader ? `0 ${spacing?.padding || '35px'} 0 ${spacing?.padding || '35px'}` : '0'
+        }}>
           {sidebarPosition === 'left' && (
             <div style={{ ...styles.sidebar, width: '30%' }}>
               {renderSidebarSections()}
@@ -577,7 +608,9 @@ export default function ResumePreview() {
           )}
         </div>
       ) : (
-        <div>
+        <div style={{
+          padding: hasHeader ? `0 ${spacing?.padding || '35px'} 0 ${spacing?.padding || '35px'}` : '0'
+        }}>
           {renderMainSections()}
           {customSections.length > 0 && renderCustomSections()}
         </div>
