@@ -52,6 +52,10 @@ export const useHistoryStore = create((set, get) => ({
   canUndo: () => get().past.length > 0,
   canRedo: () => get().future.length > 0,
 
+  // Get undo/redo counts
+  getUndoCount: () => get().past.length,
+  getRedoCount: () => get().future.length,
+
   // Clear history
   clearHistory: () => set({ past: [], future: [] })
 }));

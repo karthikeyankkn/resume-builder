@@ -75,40 +75,6 @@ const builtInTemplates = [
     }
   },
   {
-    id: 'creative',
-    name: 'Creative Bold',
-    description: 'Stand out with colorful accents and modern typography',
-    thumbnail: null,
-    isCustom: false,
-    createdFrom: 'preset',
-    layout: {
-      columns: 1,
-      headerStyle: 'split',
-      sectionOrder: ['personalInfo', 'summary', 'experience', 'projects', 'education', 'skills', 'certifications'],
-      sidebar: { enabled: false, position: 'left', sections: [] }
-    },
-    styles: {
-      colors: {
-        primary: '#7c3aed',
-        secondary: '#6b7280',
-        accent: '#ec4899',
-        text: '#111827',
-        background: '#ffffff',
-        headerBg: '#7c3aed'
-      },
-      fonts: {
-        heading: 'Inter',
-        body: 'Inter',
-        sizes: { name: '32px', title: '14px', sectionTitle: '14px', body: '11px' }
-      },
-      spacing: {
-        sectionGap: '24px',
-        itemGap: '14px',
-        padding: '36px'
-      }
-    }
-  },
-  {
     id: 'executive',
     name: 'Executive Classic',
     description: 'Traditional and elegant design for senior positions',
@@ -139,76 +105,6 @@ const builtInTemplates = [
         sectionGap: '22px',
         itemGap: '12px',
         padding: '48px'
-      }
-    }
-  },
-  {
-    id: 'compact',
-    name: 'Compact Modern',
-    description: 'Maximum content in minimal space',
-    thumbnail: null,
-    isCustom: false,
-    createdFrom: 'preset',
-    layout: {
-      columns: 2,
-      headerStyle: 'left',
-      sectionOrder: ['personalInfo', 'experience', 'education'],
-      sidebar: { enabled: true, position: 'left', sections: ['summary', 'skills', 'certifications', 'projects'] }
-    },
-    styles: {
-      colors: {
-        primary: '#059669',
-        secondary: '#6b7280',
-        accent: '#0891b2',
-        text: '#1f2937',
-        background: '#ffffff',
-        headerBg: '#ffffff',
-        sidebarBg: '#ecfdf5'
-      },
-      fonts: {
-        heading: 'Inter',
-        body: 'Inter',
-        sizes: { name: '22px', title: '11px', sectionTitle: '11px', body: '9px' }
-      },
-      spacing: {
-        sectionGap: '12px',
-        itemGap: '8px',
-        padding: '24px'
-      }
-    }
-  },
-  {
-    id: 'frontend-dev',
-    name: 'Frontend Developer',
-    description: 'Modern tech aesthetic with skills-focused layout for developers',
-    thumbnail: null,
-    isCustom: false,
-    createdFrom: 'preset',
-    layout: {
-      columns: 2,
-      headerStyle: 'left',
-      sectionOrder: ['personalInfo', 'summary', 'experience', 'projects', 'education'],
-      sidebar: { enabled: true, position: 'right', sections: ['skills', 'certifications'] }
-    },
-    styles: {
-      colors: {
-        primary: '#06b6d4',
-        secondary: '#94a3b8',
-        accent: '#a855f7',
-        text: '#f1f5f9',
-        background: '#ffffff',
-        headerBg: '#0f172a',
-        sidebarBg: '#f0fdfa'
-      },
-      fonts: {
-        heading: 'Inter',
-        body: 'Inter',
-        sizes: { name: '26px', title: '13px', sectionTitle: '12px', body: '10px' }
-      },
-      spacing: {
-        sectionGap: '18px',
-        itemGap: '10px',
-        padding: '32px'
       }
     }
   },
@@ -246,41 +142,6 @@ const builtInTemplates = [
       }
     }
   },
-  {
-    id: 'startup-modern',
-    name: 'Startup Modern',
-    description: 'Fresh gradient style perfect for startups and modern companies',
-    thumbnail: null,
-    isCustom: false,
-    createdFrom: 'preset',
-    layout: {
-      columns: 2,
-      headerStyle: 'centered',
-      sectionOrder: ['personalInfo', 'summary', 'experience', 'projects'],
-      sidebar: { enabled: true, position: 'left', sections: ['skills', 'education', 'certifications'] }
-    },
-    styles: {
-      colors: {
-        primary: '#8b5cf6',
-        secondary: '#71717a',
-        accent: '#f97316',
-        text: '#18181b',
-        background: '#ffffff',
-        headerBg: '#8b5cf6',
-        sidebarBg: '#faf5ff'
-      },
-      fonts: {
-        heading: 'Inter',
-        body: 'Inter',
-        sizes: { name: '28px', title: '13px', sectionTitle: '12px', body: '10px' }
-      },
-      spacing: {
-        sectionGap: '18px',
-        itemGap: '10px',
-        padding: '32px'
-      }
-    }
-  }
 ];
 
 export const useTemplateStore = create(

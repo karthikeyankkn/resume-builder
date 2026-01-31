@@ -1,11 +1,12 @@
-import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, ArrowUp, ArrowDown, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 import { useConfirm } from '../../../store/confirmStore';
 import MonthPicker from '../../common/MonthPicker';
+import { validateDateRange } from '../../../utils/validationUtils';
 
 export default function Experience() {
-  const { resume, addExperience, updateExperience, removeExperience } = useResumeStore();
+  const { resume, addExperience, updateExperience, removeExperience, reorderExperience } = useResumeStore();
   const { confirm } = useConfirm();
   const [expandedItems, setExpandedItems] = useState({});
 
@@ -60,7 +61,27 @@ export default function Experience() {
               className="flex items-center gap-2 p-3 bg-gray-50 cursor-pointer hover:bg-gray-100"
               onClick={() => toggleExpand(exp.id)}
             >
-              <GripVertical className="w-4 h-4 text-gray-400 cursor-grab" />
+              {/* Reorder buttons */}
+              <div className="reorder-buttons" onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={() => reorderExperience(index, index - 1)}
+                  disabled={index === 0}
+                  className="reorder-btn"
+                  title="Move up"
+                  aria-label="Move experience up"
+                >
+                  <ArrowUp className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => reorderExperience(index, index + 1)}
+                  disabled={index === resume.experience.length - 1}
+                  className="reorder-btn"
+                  title="Move down"
+                  aria-label="Move experience down"
+                >
+                  <ArrowDown className="w-3.5 h-3.5" />
+                </button>
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-900 truncate">
                   {exp.position || 'New Position'}
@@ -163,6 +184,15 @@ export default function Experience() {
                         />
                         Current position
                       </label>
+                      {(() => {
+                        const dateValidation = validateDateRange(exp.startDate, exp.endDate, exp.current);
+                        return !dateValidation.valid && (
+                          <p className="form-error">
+                            <AlertCircle className="w-3 h-3" />
+                            {dateValidation.error}
+                          </p>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>

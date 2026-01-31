@@ -1,11 +1,12 @@
-import { Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, ArrowUp, ArrowDown, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 import { useConfirm } from '../../../store/confirmStore';
 import MonthPicker from '../../common/MonthPicker';
+import { validateDateRange } from '../../../utils/validationUtils';
 
 export default function Education() {
-  const { resume, addEducation, updateEducation, removeEducation } = useResumeStore();
+  const { resume, addEducation, updateEducation, removeEducation, reorderEducation } = useResumeStore();
   const { confirm } = useConfirm();
   const [expandedItems, setExpandedItems] = useState({});
 
@@ -50,7 +51,7 @@ export default function Education() {
       </div>
 
       <div className="space-y-4">
-        {resume.education.map((edu) => (
+        {resume.education.map((edu, index) => (
           <div
             key={edu.id}
             className="border border-gray-200 rounded-lg overflow-hidden"
@@ -60,6 +61,27 @@ export default function Education() {
               className="flex items-center gap-2 p-3 bg-gray-50 cursor-pointer hover:bg-gray-100"
               onClick={() => toggleExpand(edu.id)}
             >
+              {/* Reorder buttons */}
+              <div className="reorder-buttons" onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={() => reorderEducation(index, index - 1)}
+                  disabled={index === 0}
+                  className="reorder-btn"
+                  title="Move up"
+                  aria-label="Move education up"
+                >
+                  <ArrowUp className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => reorderEducation(index, index + 1)}
+                  disabled={index === resume.education.length - 1}
+                  className="reorder-btn"
+                  title="Move down"
+                  aria-label="Move education down"
+                >
+                  <ArrowDown className="w-3.5 h-3.5" />
+                </button>
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-900 truncate">
                   {edu.degree || 'Degree'} {edu.field && `in ${edu.field}`}
@@ -147,6 +169,15 @@ export default function Education() {
                       onChange={(value) => updateEducation(edu.id, 'endDate', value)}
                       placeholder="Select end date"
                     />
+                    {(() => {
+                      const dateValidation = validateDateRange(edu.startDate, edu.endDate);
+                      return !dateValidation.valid && (
+                        <p className="form-error mt-1">
+                          <AlertCircle className="w-3 h-3" />
+                          {dateValidation.error}
+                        </p>
+                      );
+                    })()}
                   </div>
                   <div>
                     <label className="form-label">GPA (optional)</label>

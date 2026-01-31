@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { FileText, Download, Layout, Upload, FilePlus, Save, Undo2, Redo2, Sun, Moon, Monitor } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import { FileText, Download, Layout, Upload, FilePlus, Save, Undo2, Redo2, Sun, Moon, Monitor, Check, Cloud, Loader2 } from 'lucide-react';
 import { useUIStore } from '../../store/uiStore';
 import { useResumeStore } from '../../store/resumeStore';
 import { useTemplateStore } from '../../store/templateStore';
@@ -8,17 +8,43 @@ import { useThemeStore } from '../../store/themeStore';
 import { useToast } from '../../store/toastStore';
 import { useConfirm } from '../../store/confirmStore';
 
+// Format relative time
+function formatRelativeTime(dateString) {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${diffDays}d ago`;
+}
+
 export default function Header() {
   const { openTemplateGallery, openExportModal, openImportModal } = useUIStore();
-  const { resume, saveCurrentResume, resetResume, isDirty, clearDirty } = useResumeStore();
+  const { resume, saveCurrentResume, resetResume, isDirty, clearDirty, lastSavedAt } = useResumeStore();
   const { getCurrentTemplate } = useTemplateStore();
-  const { undo, redo, canUndo, canRedo, pushState } = useHistoryStore();
-  const { theme, toggleTheme, cycleTheme, getEffectiveTheme } = useThemeStore();
+  const { undo, redo, canUndo, canRedo, pushState, getUndoCount, getRedoCount } = useHistoryStore();
+  const { theme, cycleTheme } = useThemeStore();
   const { showToast } = useToast();
   const { confirm } = useConfirm();
 
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSavedDisplay, setLastSavedDisplay] = useState(formatRelativeTime(lastSavedAt));
+
   const currentTemplate = getCurrentTemplate();
-  const effectiveTheme = getEffectiveTheme();
+
+  // Update last saved display every minute
+  useEffect(() => {
+    const updateDisplay = () => setLastSavedDisplay(formatRelativeTime(lastSavedAt));
+    updateDisplay();
+    const interval = setInterval(updateDisplay, 60000);
+    return () => clearInterval(interval);
+  }, [lastSavedAt]);
 
   // Warn user before leaving with unsaved changes
   useEffect(() => {
@@ -35,10 +61,16 @@ export default function Header() {
   }, [isDirty]);
 
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setIsSaving(true);
     pushState(JSON.stringify(resume));
+
+    // Simulate small delay for visual feedback
+    await new Promise(resolve => setTimeout(resolve, 300));
+
     saveCurrentResume();
     clearDirty();
+    setIsSaving(false);
     showToast('Resume saved!', 'success');
   };
 
@@ -116,20 +148,26 @@ export default function Header() {
         <button
           onClick={handleUndo}
           disabled={!canUndo()}
-          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          title="Undo (Ctrl+Z)"
+          className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          title={`Undo (Ctrl+Z)${canUndo() ? ` - ${getUndoCount()} actions available` : ''}`}
           aria-label="Undo last action"
         >
           <Undo2 className="w-4 h-4" aria-hidden="true" />
+          {canUndo() && getUndoCount() > 0 && (
+            <span className="history-badge">{getUndoCount()}</span>
+          )}
         </button>
         <button
           onClick={handleRedo}
           disabled={!canRedo()}
-          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          title="Redo (Ctrl+Shift+Z)"
+          className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          title={`Redo (Ctrl+Shift+Z)${canRedo() ? ` - ${getRedoCount()} actions available` : ''}`}
           aria-label="Redo last action"
         >
           <Redo2 className="w-4 h-4" aria-hidden="true" />
+          {canRedo() && getRedoCount() > 0 && (
+            <span className="history-badge">{getRedoCount()}</span>
+          )}
         </button>
 
         <div className="h-6 w-px bg-gray-200 mx-2" />
@@ -156,26 +194,46 @@ export default function Header() {
           <span className="hidden sm:inline">Import</span>
         </button>
 
-        {/* Save Button */}
-        <button
-          onClick={handleSave}
-          className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors relative ${
-            isDirty
-              ? 'text-primary-600 bg-primary-50 hover:bg-primary-100'
-              : 'text-gray-600 hover:bg-gray-100'
-          }`}
-          title={isDirty ? "Save changes (Ctrl+S)" : "Saved"}
-          aria-label={isDirty ? "Save unsaved changes" : "All changes saved"}
-        >
-          <Save className="w-4 h-4" aria-hidden="true" />
-          <span className="hidden sm:inline">Save</span>
-          {isDirty && (
-            <span
-              className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-orange-500 rounded-full"
-              aria-label="Unsaved changes"
-            />
+        {/* Save Button with Auto-Save Indicator */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors relative ${
+              isSaving
+                ? 'text-primary-600 bg-primary-50'
+                : isDirty
+                  ? 'text-primary-600 bg-primary-50 hover:bg-primary-100'
+                  : 'text-gray-600 hover:bg-gray-100'
+            }`}
+            title={isSaving ? "Saving..." : isDirty ? "Save changes (Ctrl+S)" : "Saved"}
+            aria-label={isSaving ? "Saving changes" : isDirty ? "Save unsaved changes" : "All changes saved"}
+          >
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+            ) : isDirty ? (
+              <Save className="w-4 h-4" aria-hidden="true" />
+            ) : (
+              <Cloud className="w-4 h-4 text-green-500" aria-hidden="true" />
+            )}
+            <span className="hidden sm:inline">{isSaving ? 'Saving...' : isDirty ? 'Save' : 'Saved'}</span>
+            {isDirty && !isSaving && (
+              <span
+                className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-orange-500 rounded-full"
+                aria-label="Unsaved changes"
+              />
+            )}
+            {!isDirty && !isSaving && (
+              <Check className="w-3 h-3 text-green-500 absolute -top-0.5 -right-0.5" />
+            )}
+          </button>
+          {/* Last saved indicator */}
+          {lastSavedDisplay && !isDirty && (
+            <span className="hidden lg:inline text-xs text-gray-400" title={`Last saved: ${lastSavedAt}`}>
+              {lastSavedDisplay}
+            </span>
           )}
-        </button>
+        </div>
 
         {/* New Resume Button */}
         <button

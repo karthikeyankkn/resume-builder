@@ -1,34 +1,16 @@
-import { Plus, Trash2, ChevronDown, ChevronUp, X, Link } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Link, ArrowUp, ArrowDown } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 import { useConfirm } from '../../../store/confirmStore';
+import TagInput from '../../common/TagInput';
 
 export default function Projects() {
-  const { resume, addProject, updateProject, removeProject } = useResumeStore();
+  const { resume, addProject, updateProject, removeProject, reorderProjects } = useResumeStore();
   const { confirm } = useConfirm();
   const [expandedItems, setExpandedItems] = useState({});
-  const [newTechInputs, setNewTechInputs] = useState({});
 
   const toggleExpand = (id) => {
     setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const handleAddTech = (projectId, e) => {
-    if (e.key === 'Enter' && newTechInputs[projectId]?.trim()) {
-      const project = resume.projects.find((p) => p.id === projectId);
-      if (project) {
-        updateProject(projectId, 'technologies', [...project.technologies, newTechInputs[projectId].trim()]);
-        setNewTechInputs((prev) => ({ ...prev, [projectId]: '' }));
-      }
-    }
-  };
-
-  const removeTech = (projectId, techIndex) => {
-    const project = resume.projects.find((p) => p.id === projectId);
-    if (project) {
-      const technologies = project.technologies.filter((_, i) => i !== techIndex);
-      updateProject(projectId, 'technologies', technologies);
-    }
   };
 
   const handleHighlightChange = (projectId, index, value) => {
@@ -68,7 +50,7 @@ export default function Projects() {
       </div>
 
       <div className="space-y-4">
-        {resume.projects.map((project) => (
+        {resume.projects.map((project, index) => (
           <div
             key={project.id}
             className="border border-gray-200 rounded-lg overflow-hidden"
@@ -78,6 +60,27 @@ export default function Projects() {
               className="flex items-center gap-2 p-3 bg-gray-50 cursor-pointer hover:bg-gray-100"
               onClick={() => toggleExpand(project.id)}
             >
+              {/* Reorder buttons */}
+              <div className="reorder-buttons" onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={() => reorderProjects(index, index - 1)}
+                  disabled={index === 0}
+                  className="reorder-btn"
+                  title="Move up"
+                  aria-label="Move project up"
+                >
+                  <ArrowUp className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => reorderProjects(index, index + 1)}
+                  disabled={index === resume.projects.length - 1}
+                  className="reorder-btn"
+                  title="Move down"
+                  aria-label="Move project down"
+                >
+                  <ArrowDown className="w-3.5 h-3.5" />
+                </button>
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-900 truncate">
                   {project.name || 'New Project'}
@@ -153,29 +156,10 @@ export default function Projects() {
                 {/* Technologies */}
                 <div>
                   <label className="form-label">Technologies Used</label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {project.technologies.map((tech, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-sm"
-                      >
-                        {tech}
-                        <button
-                          onClick={() => removeTech(project.id, index)}
-                          className="hover:text-red-500"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  <input
-                    type="text"
-                    value={newTechInputs[project.id] || ''}
-                    onChange={(e) => setNewTechInputs((prev) => ({ ...prev, [project.id]: e.target.value }))}
-                    onKeyDown={(e) => handleAddTech(project.id, e)}
-                    placeholder="Type technology and press Enter"
-                    className="form-input text-sm"
+                  <TagInput
+                    tags={project.technologies}
+                    onChange={(newTechnologies) => updateProject(project.id, 'technologies', newTechnologies)}
+                    placeholder="Type technology and press Enter or comma"
                   />
                 </div>
 

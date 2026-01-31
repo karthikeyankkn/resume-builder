@@ -1,11 +1,11 @@
-import { Plus, Trash2, ChevronDown, ChevronUp, Link } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Link, ArrowUp, ArrowDown } from 'lucide-react';
 import { useState } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 import { useConfirm } from '../../../store/confirmStore';
 import MonthPicker from '../../common/MonthPicker';
 
 export default function Certifications() {
-  const { resume, addCertification, updateCertification, removeCertification } = useResumeStore();
+  const { resume, addCertification, updateCertification, removeCertification, reorderCertifications } = useResumeStore();
   const { confirm } = useConfirm();
   const [expandedItems, setExpandedItems] = useState({});
 
@@ -26,7 +26,7 @@ export default function Certifications() {
       </div>
 
       <div className="space-y-4">
-        {resume.certifications.map((cert) => (
+        {resume.certifications.map((cert, index) => (
           <div
             key={cert.id}
             className="border border-gray-200 rounded-lg overflow-hidden"
@@ -36,6 +36,27 @@ export default function Certifications() {
               className="flex items-center gap-2 p-3 bg-gray-50 cursor-pointer hover:bg-gray-100"
               onClick={() => toggleExpand(cert.id)}
             >
+              {/* Reorder buttons */}
+              <div className="reorder-buttons" onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={() => reorderCertifications(index, index - 1)}
+                  disabled={index === 0}
+                  className="reorder-btn"
+                  title="Move up"
+                  aria-label="Move certification up"
+                >
+                  <ArrowUp className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => reorderCertifications(index, index + 1)}
+                  disabled={index === resume.certifications.length - 1}
+                  className="reorder-btn"
+                  title="Move down"
+                  aria-label="Move certification down"
+                >
+                  <ArrowDown className="w-3.5 h-3.5" />
+                </button>
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-900 truncate">
                   {cert.name || 'New Certification'}

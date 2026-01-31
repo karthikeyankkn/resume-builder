@@ -113,6 +113,67 @@
   color-scheme: dark;
 }
 
+/* ========================================
+   THEME TRANSITION
+   ======================================== */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* ========================================
+   HIGH CONTRAST MODE
+   ======================================== */
+:root.high-contrast {
+  --primary: #0000ff;
+  --primary-light: #0066ff;
+  --primary-dark: #0000cc;
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --text-muted: #555555;
+  --background: #ffffff;
+  --background-secondary: #f0f0f0;
+  --surface: #ffffff;
+  --border: #000000;
+  --border-light: #333333;
+  --input-border: #000000;
+}
+
+:root.high-contrast.dark {
+  --primary: #00ccff;
+  --primary-light: #66ddff;
+  --primary-dark: #0099cc;
+  --text-primary: #ffffff;
+  --text-secondary: #eeeeee;
+  --text-muted: #cccccc;
+  --background: #000000;
+  --background-secondary: #111111;
+  --surface: #111111;
+  --border: #ffffff;
+  --border-light: #cccccc;
+  --input-border: #ffffff;
+}
+
+.high-contrast .form-input,
+.high-contrast .form-textarea {
+  border-width: 2px;
+}
+
+.high-contrast .btn {
+  border-width: 2px;
+  font-weight: 600;
+}
+
+.high-contrast .editor-section {
+  border-width: 2px;
+}
+
+.high-contrast a {
+  text-decoration: underline;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -618,6 +679,27 @@ input[type="month"]:not(:valid) {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Skeleton shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.dark .skeleton-shimmer {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+}
+
 /* Section Highlight Animation */
 @keyframes highlight {
   0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
@@ -767,7 +849,21 @@ select:focus-visible {
   button,
   .form-input,
   .form-textarea,
-  .clickable-region:hover::after {
+  .clickable-region:hover::after,
+  [data-print-hide],
+  .no-print {
+    display: none !important;
+  }
+
+  /* Hide editor panel completely */
+  .editor-panel,
+  [class*="editor"],
+  .split-pane-left {
+    display: none !important;
+  }
+
+  /* Hide keyboard shortcut hint */
+  .fixed.bottom-4 {
     display: none !important;
   }
 
@@ -776,34 +872,85 @@ select:focus-visible {
     background: white !important;
     color: black !important;
     font-size: 12pt;
-  }
-
-  /* Full width preview */
-  .a4-preview {
-    width: 100% !important;
-    height: auto !important;
-    box-shadow: none !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
-  /* Ensure links are visible */
+  /* Root container - remove min-height */
+  #root {
+    min-height: auto !important;
+  }
+
+  /* Full width preview - make it fill the page */
+  .preview-panel,
+  .split-pane-right {
+    width: 100% !important;
+    height: auto !important;
+    position: static !important;
+    overflow: visible !important;
+  }
+
+  .a4-preview {
+    width: 100% !important;
+    max-width: 210mm !important;
+    height: auto !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+
+  /* A4 page styling */
+  .a4-page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 20mm !important;
+    box-shadow: none !important;
+    page-break-after: always;
+  }
+
+  .a4-page:last-child {
+    page-break-after: auto;
+  }
+
+  /* Remove link href display for cleaner output */
   a[href]::after {
-    content: " (" attr(href) ")";
-    font-size: 0.8em;
-    color: #666;
+    content: none !important;
   }
 
   /* Page breaks */
   .experience-item,
   .education-item,
-  .project-item {
+  .project-item,
+  .resume-section,
+  .resume-item {
     page-break-inside: avoid;
+    break-inside: avoid;
   }
 
-  /* Remove backgrounds */
+  /* Keep headings with their content */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Ensure proper colors for print */
   * {
-    background: transparent !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Remove transitions for print */
+  * {
+    transition: none !important;
+  }
+
+  /* Set page margins */
+  @page {
+    size: A4;
+    margin: 0;
   }
 }
 
@@ -925,4 +1072,98 @@ select {
 .dark input[type="checkbox"]:checked {
   background-color: var(--primary);
   border-color: var(--primary);
+}
+
+/* ========================================
+   PDF VIEWER CONTAINER
+   ======================================== */
+.pdf-viewer-container {
+  height: 500px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ========================================
+   FORM VALIDATION STYLES
+   ======================================== */
+.form-error {
+  color: var(--error);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.form-input.error,
+.form-textarea.error {
+  border-color: var(--error);
+}
+
+.form-input.error:focus,
+.form-textarea.error:focus {
+  border-color: var(--error);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* ========================================
+   REORDER BUTTONS
+   ======================================== */
+.reorder-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.reorder-btn {
+  padding: 0.125rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.reorder-btn:hover:not(:disabled) {
+  color: var(--primary);
+  background-color: var(--color-primary-50);
+}
+
+.reorder-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   UNDO/REDO BADGES
+   ======================================== */
+.history-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background-color: var(--primary);
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ========================================
+   TEMPLATE GALLERY ENHANCEMENTS
+   ======================================== */
+.template-card:hover .template-preview-zoom {
+  transform: scale(1.02);
+}
+
+.template-preview-zoom {
+  transition: transform 0.2s ease-out;
 }

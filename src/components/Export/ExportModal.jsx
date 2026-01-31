@@ -118,7 +118,7 @@ export default function ExportModal() {
 
               {/* PDF Preview */}
               {showPreview && (
-                <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm" style={{ height: '500px' }}>
+                <div className="pdf-viewer-container">
                   <PDFViewer width="100%" height="100%" showToolbar={false}>
                     <ResumePDF resume={resume} template={template} />
                   </PDFViewer>

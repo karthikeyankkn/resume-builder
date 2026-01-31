@@ -4,8 +4,11 @@ import { persist } from 'zustand/middleware';
 export const useThemeStore = create(
   persist(
     (set, get) => ({
-      // Theme can be 'light', 'dark', or 'system'
+      // Theme can be 'light', 'dark', 'system', or 'high-contrast'
       theme: 'system',
+
+      // High contrast mode (independent of theme)
+      highContrast: false,
 
       // Get the actual theme to apply (resolves 'system' to actual theme)
       getEffectiveTheme: () => {
@@ -51,16 +54,44 @@ export const useThemeStore = create(
         get().applyTheme();
       },
 
+      // Toggle high contrast mode
+      toggleHighContrast: () => {
+        set((state) => ({ highContrast: !state.highContrast }));
+        get().applyTheme();
+      },
+
+      // Set high contrast mode
+      setHighContrast: (enabled) => {
+        set({ highContrast: enabled });
+        get().applyTheme();
+      },
+
       // Apply theme to document
       applyTheme: () => {
+        const { highContrast } = get();
         const effectiveTheme = get().getEffectiveTheme();
         const root = document.documentElement;
+
+        // Add transition class for smooth theme changes
+        root.classList.add('theme-transition');
 
         if (effectiveTheme === 'dark') {
           root.classList.add('dark');
         } else {
           root.classList.remove('dark');
         }
+
+        // Handle high contrast mode
+        if (highContrast) {
+          root.classList.add('high-contrast');
+        } else {
+          root.classList.remove('high-contrast');
+        }
+
+        // Remove transition class after animation completes
+        setTimeout(() => {
+          root.classList.remove('theme-transition');
+        }, 300);
       },
 
       // Initialize theme on app load
@@ -78,7 +109,7 @@ export const useThemeStore = create(
     }),
     {
       name: 'theme-storage',
-      partialize: (state) => ({ theme: state.theme })
+      partialize: (state) => ({ theme: state.theme, highContrast: state.highContrast })
     }
   )
 );

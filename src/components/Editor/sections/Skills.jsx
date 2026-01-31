@@ -8,13 +8,45 @@ export default function Skills() {
   const { confirm } = useConfirm();
   const [newSkillInputs, setNewSkillInputs] = useState({});
 
+  const addSkillToCategory = (categoryId, skill) => {
+    const category = resume.skills.categories.find((c) => c.id === categoryId);
+    if (category && skill.trim() && !category.items.includes(skill.trim())) {
+      updateSkillCategory(categoryId, 'items', [...category.items, skill.trim()]);
+    }
+  };
+
   const handleAddSkill = (categoryId, e) => {
-    if (e.key === 'Enter' && newSkillInputs[categoryId]?.trim()) {
-      const category = resume.skills.categories.find((c) => c.id === categoryId);
-      if (category) {
-        updateSkillCategory(categoryId, 'items', [...category.items, newSkillInputs[categoryId].trim()]);
+    const value = newSkillInputs[categoryId] || '';
+
+    // Handle Enter key
+    if (e.key === 'Enter' && value.trim()) {
+      e.preventDefault();
+      addSkillToCategory(categoryId, value);
+      setNewSkillInputs((prev) => ({ ...prev, [categoryId]: '' }));
+    }
+    // Handle comma key
+    else if (e.key === ',') {
+      e.preventDefault();
+      if (value.trim()) {
+        addSkillToCategory(categoryId, value);
         setNewSkillInputs((prev) => ({ ...prev, [categoryId]: '' }));
       }
+    }
+  };
+
+  const handleSkillInputChange = (categoryId, value) => {
+    // Check if value contains comma - add skill before the comma
+    if (value.includes(',')) {
+      const parts = value.split(',');
+      parts.forEach((part, index) => {
+        if (part.trim() && index < parts.length - 1) {
+          addSkillToCategory(categoryId, part);
+        }
+      });
+      // Keep text after last comma
+      setNewSkillInputs((prev) => ({ ...prev, [categoryId]: parts[parts.length - 1] }));
+    } else {
+      setNewSkillInputs((prev) => ({ ...prev, [categoryId]: value }));
     }
   };
 
@@ -77,12 +109,13 @@ export default function Skills() {
               {category.items.map((skill, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center gap-1 px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-full text-sm font-medium border border-primary-100 hover:bg-primary-100 transition-colors"
                 >
                   {skill}
                   <button
                     onClick={() => removeSkill(category.id, index)}
-                    className="hover:text-primary-900"
+                    className="hover:text-red-600 transition-colors"
+                    aria-label={`Remove ${skill}`}
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -94,9 +127,9 @@ export default function Skills() {
             <input
               type="text"
               value={newSkillInputs[category.id] || ''}
-              onChange={(e) => setNewSkillInputs((prev) => ({ ...prev, [category.id]: e.target.value }))}
+              onChange={(e) => handleSkillInputChange(category.id, e.target.value)}
               onKeyDown={(e) => handleAddSkill(category.id, e)}
-              placeholder="Type a skill and press Enter"
+              placeholder="Type a skill and press Enter or comma"
               className="form-input text-sm"
             />
           </div>

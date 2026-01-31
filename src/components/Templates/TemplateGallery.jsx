@@ -230,30 +230,36 @@ function TemplateCard({ template, isActive, onSelect, onDuplicate, onDelete, onE
   return (
     <div
       onClick={onSelect}
-      className={`template-card p-3 bg-white ${isActive ? 'selected' : ''}`}
+      className={`template-card p-3 bg-white group ${isActive ? 'selected' : ''}`}
     >
-      {/* Template Preview */}
+      {/* Template Preview - larger area with hover zoom */}
       <div
         className="aspect-[1/1.414] rounded-md mb-3 relative overflow-hidden border border-gray-200 shadow-sm"
       >
-        <TemplatePreview template={template} />
+        <div className="template-preview-zoom w-full h-full">
+          <TemplatePreview template={template} />
+        </div>
 
         {/* Selected indicator */}
         {isActive && (
-          <div className="absolute top-2 right-2 w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center shadow-md">
+          <div className="absolute top-2 right-2 w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center shadow-md z-10">
             <Check className="w-4 h-4 text-white" />
           </div>
         )}
 
         {/* AI Generated badge */}
         {template.createdFrom === 'screenshot' && (
-          <div className="absolute bottom-2 left-2 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">
+          <div className="absolute bottom-2 left-2 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium z-10">
             AI Generated
           </div>
         )}
 
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-primary-600/0 hover:bg-primary-600/5 transition-colors" />
+        {/* Hover overlay with "Use Template" hint */}
+        <div className="absolute inset-0 bg-primary-600/0 group-hover:bg-primary-600/10 transition-all flex items-center justify-center">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-primary-600 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-lg">
+            Use Template
+          </span>
+        </div>
       </div>
 
       {/* Template Info */}

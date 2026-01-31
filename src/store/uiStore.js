@@ -86,5 +86,27 @@ export const useUIStore = create((set, get) => ({
   setExpandedSection: (section) => set({ expandedSection: section }),
   toggleSection: (section) => set((state) => ({
     expandedSection: state.expandedSection === section ? null : section
-  }))
+  })),
+
+  // Expand/collapse all sections
+  expandedSections: new Set(['personalInfo']),
+  expandAllSections: (sectionIds) => set({ expandedSections: new Set(sectionIds) }),
+  collapseAllSections: () => set({ expandedSections: new Set() }),
+  isSectionExpanded: (sectionId) => {
+    const state = get();
+    // Support both single expanded section and multiple expanded sections
+    if (state.expandedSections && state.expandedSections.size > 0) {
+      return state.expandedSections.has(sectionId);
+    }
+    return state.expandedSection === sectionId;
+  },
+  toggleSectionMultiple: (sectionId) => set((state) => {
+    const newSet = new Set(state.expandedSections || []);
+    if (newSet.has(sectionId)) {
+      newSet.delete(sectionId);
+    } else {
+      newSet.add(sectionId);
+    }
+    return { expandedSections: newSet, expandedSection: null };
+  })
 }));

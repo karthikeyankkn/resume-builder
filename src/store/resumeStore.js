@@ -251,6 +251,14 @@ export const useResumeStore = create(
           }
         })),
 
+      reorderEducation: (fromIndex, toIndex) =>
+        set((state) => {
+          const education = [...state.resume.education];
+          const [removed] = education.splice(fromIndex, 1);
+          education.splice(toIndex, 0, removed);
+          return { isDirty: true, resume: { ...state.resume, education } };
+        }),
+
       // Skills CRUD
       addSkillCategory: () =>
         set((state) => ({
@@ -330,6 +338,14 @@ export const useResumeStore = create(
           }
         })),
 
+      reorderProjects: (fromIndex, toIndex) =>
+        set((state) => {
+          const projects = [...state.resume.projects];
+          const [removed] = projects.splice(fromIndex, 1);
+          projects.splice(toIndex, 0, removed);
+          return { isDirty: true, resume: { ...state.resume, projects } };
+        }),
+
       // Certifications CRUD
       addCertification: () =>
         set((state) => ({
@@ -369,6 +385,14 @@ export const useResumeStore = create(
             certifications: state.resume.certifications.filter((cert) => cert.id !== id)
           }
         })),
+
+      reorderCertifications: (fromIndex, toIndex) =>
+        set((state) => {
+          const certifications = [...state.resume.certifications];
+          const [removed] = certifications.splice(fromIndex, 1);
+          certifications.splice(toIndex, 0, removed);
+          return { isDirty: true, resume: { ...state.resume, certifications } };
+        }),
 
       // Custom Sections
       addCustomSection: () =>

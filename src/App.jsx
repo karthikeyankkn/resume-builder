@@ -8,6 +8,8 @@ import { useThemeStore } from './store/themeStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ToastProvider from './components/common/ToastProvider';
 import ConfirmModal from './components/common/ConfirmModal';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import { SkeletonTemplateGallery, SkeletonExportModal, SkeletonModal } from './components/common/Skeleton';
 
 // Lazy load modals for better performance
 const TemplateGallery = lazy(() => import('./components/Templates/TemplateGallery'));
@@ -17,8 +19,21 @@ const TemplateEditor = lazy(() => import('./components/TemplateBuilder/TemplateE
 const ImportModal = lazy(() => import('./components/Editor/ImportModal'));
 const ShortcutsHelpModal = lazy(() => import('./components/common/ShortcutsHelpModal'));
 
-// Loading fallback for modals
-function ModalLoader() {
+// Loading fallback for modals with skeleton
+function ModalLoader({ type = 'default' }) {
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden">
+        {type === 'template' && <SkeletonTemplateGallery />}
+        {type === 'export' && <SkeletonExportModal />}
+        {type === 'default' && <SkeletonModal />}
+      </div>
+    </div>
+  );
+}
+
+// Simple loader for smaller modals
+function SmallModalLoader() {
   return (
     <div className="modal-overlay">
       <div className="modal-content p-8 flex items-center gap-3">
@@ -50,25 +65,60 @@ function App() {
   useKeyboardShortcuts();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col transition-colors">
-      <Header />
-      <ToastProvider />
-      <main className="flex-1 overflow-hidden">
-        <SplitPane
-          left={<EditorPanel />}
-          right={<PreviewPanel />}
-        />
-      </main>
+    <ErrorBoundary showDetails={import.meta.env.DEV}>
+      <div className="min-h-screen bg-gray-50 flex flex-col transition-colors">
+        <ErrorBoundary>
+          <Header />
+        </ErrorBoundary>
+        <ToastProvider />
+        <main className="flex-1 overflow-hidden">
+          <ErrorBoundary>
+            <SplitPane
+              left={
+                <ErrorBoundary>
+                  <EditorPanel />
+                </ErrorBoundary>
+              }
+              right={
+                <ErrorBoundary>
+                  <PreviewPanel />
+                </ErrorBoundary>
+              }
+            />
+          </ErrorBoundary>
+        </main>
 
-      {/* Lazy-loaded Modals */}
-      <Suspense fallback={<ModalLoader />}>
-        {showTemplateGallery && <TemplateGallery />}
-        {showExportModal && <ExportModal />}
-        {showTemplateBuilder && <TemplateBuilder />}
-        {showTemplateEditor && <TemplateEditor />}
-        {showImportModal && <ImportModal />}
-        {showShortcutsHelpModal && <ShortcutsHelpModal />}
-      </Suspense>
+      {/* Lazy-loaded Modals with appropriate skeleton loaders */}
+      {showTemplateGallery && (
+        <Suspense fallback={<ModalLoader type="template" />}>
+          <TemplateGallery />
+        </Suspense>
+      )}
+      {showExportModal && (
+        <Suspense fallback={<ModalLoader type="export" />}>
+          <ExportModal />
+        </Suspense>
+      )}
+      {showTemplateBuilder && (
+        <Suspense fallback={<ModalLoader type="default" />}>
+          <TemplateBuilder />
+        </Suspense>
+      )}
+      {showTemplateEditor && (
+        <Suspense fallback={<ModalLoader type="default" />}>
+          <TemplateEditor />
+        </Suspense>
+      )}
+      {showImportModal && (
+        <Suspense fallback={<SmallModalLoader />}>
+          <ImportModal />
+        </Suspense>
+      )}
+      {showShortcutsHelpModal && (
+        <Suspense fallback={<SmallModalLoader />}>
+          <ShortcutsHelpModal />
+        </Suspense>
+      )}
 
       {/* Keyboard Shortcut Hint */}
       <div className="fixed bottom-4 left-4 text-xs text-gray-400 hidden sm:block">
@@ -78,6 +128,7 @@ function App() {
       {/* Confirm Dialog */}
       <ConfirmModal />
     </div>
+    </ErrorBoundary>
   );
 }
 
