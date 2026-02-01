@@ -1,14 +1,30 @@
 import { Plus, Trash2, ChevronDown, ChevronUp, ArrowUp, ArrowDown, AlertCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 import { useConfirm } from '../../../store/confirmStore';
 import MonthPicker from '../../common/MonthPicker';
 import { validateDateRange } from '../../../utils/validationUtils';
+import { usePaginatedList } from '../../../hooks/usePaginatedList';
+import ListPagination from '../../common/ListPagination';
 
 export default function Education() {
   const { resume, addEducation, updateEducation, removeEducation, reorderEducation } = useResumeStore();
   const { confirm } = useConfirm();
   const [expandedItems, setExpandedItems] = useState({});
+
+  // Paginate for large lists (performance optimization)
+  const pagination = usePaginatedList(resume.education, {
+    initialCount: 20,
+    incrementCount: 20,
+    threshold: 15,
+  });
+
+  // Reset pagination when items are added
+  useEffect(() => {
+    if (resume.education.length > pagination.visibleCount) {
+      pagination.reset();
+    }
+  }, [resume.education.length]);
 
   const toggleExpand = (id) => {
     setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -54,7 +70,7 @@ export default function Education() {
       </div>
 
       <div className="space-y-4">
-        {resume.education.map((edu, index) => (
+        {pagination.visibleItems.map((edu, index) => (
           <div
             key={edu.id}
             className="border border-gray-200 rounded-lg overflow-hidden"
@@ -233,6 +249,18 @@ export default function Education() {
           <p className="text-center text-gray-500 py-8">
             No education added yet. Click "Add" to get started.
           </p>
+        )}
+
+        {pagination.needsPagination && (
+          <ListPagination
+            visibleCount={pagination.visibleCount}
+            totalCount={pagination.totalCount}
+            hiddenCount={pagination.hiddenCount}
+            hasMore={pagination.hasMore}
+            onShowMore={pagination.showMore}
+            onShowAll={pagination.showAll}
+            onShowLess={pagination.showLess}
+          />
         )}
       </div>
     </div>

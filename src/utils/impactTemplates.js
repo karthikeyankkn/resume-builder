@@ -1,7 +1,43 @@
 /**
- * Impact Statement Templates
- * Detects weak bullet points and provides templates for stronger statements
- * 100% client-side - no external APIs
+ * Impact Statement Builder - Templates and Analysis
+ *
+ * PURPOSE:
+ * Helps users transform weak, generic resume bullet points into strong,
+ * quantified achievement statements that pass ATS filters and impress recruiters.
+ *
+ * ALGORITHM OVERVIEW:
+ *
+ * 1. Weak Pattern Detection (detectWeakPattern):
+ *    - Scans text against regex patterns for common weak phrases
+ *    - Patterns include: "responsible for", "worked on", "helped with", etc.
+ *    - Returns matching template for transformation
+ *
+ * 2. Template System (WEAK_PATTERNS):
+ *    - Each weak pattern has an associated strong template
+ *    - Templates use placeholder syntax: {fieldName}
+ *    - Fields can be text, number, or select inputs
+ *    - Examples show before/after transformations
+ *
+ * 3. Strength Scoring (getStrengthScore):
+ *    - Scores bullet points 0-100 based on:
+ *      - Numbers/metrics present (+20 each, max 40)
+ *      - Starts with power verb (+15)
+ *      - Contains outcome words (+15)
+ *      - Has scope/scale indicators (+10)
+ *      - Technical terms (+5)
+ *      - Time-based results (+5)
+ *    - Penalties for weak phrases (-20) and vague language (-10)
+ *
+ * 4. Power Verbs (POWER_VERBS):
+ *    - Categorized by type: leadership, achievement, improvement, etc.
+ *    - Used for suggestions when no weak pattern is detected
+ *
+ * USAGE:
+ *   const pattern = detectWeakPattern("Responsible for managing team");
+ *   const score = getStrengthScore(bulletText);
+ *   const label = getStrengthLabel(score);
+ *
+ * 100% client-side - no external APIs required
  */
 
 // Power verbs categorized by type

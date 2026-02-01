@@ -1,21 +1,33 @@
 /**
  * Image compression utilities for handling large image uploads
+ *
+ * These utilities handle profile photo compression with size limits to prevent
+ * localStorage quota exhaustion. Photos are compressed to fit within storage
+ * constraints while maintaining acceptable visual quality.
  */
 
 const MAX_DIMENSION = 400;
 const JPEG_QUALITY = 0.8;
 const MAX_FILE_SIZE = 500 * 1024; // 500KB after compression
+const MAX_COMPRESSED_SIZE = 100 * 1024; // 100KB max for localStorage efficiency
 
 /**
- * Compresses an image to a maximum dimension while maintaining aspect ratio
+ * Compresses an image to a maximum dimension while maintaining aspect ratio.
+ * Uses progressive quality reduction to ensure the final size stays within limits.
+ *
  * @param {File} file - The image file to compress
  * @param {Object} options - Compression options
  * @param {number} options.maxDimension - Maximum width or height (default: 400)
- * @param {number} options.quality - JPEG quality 0-1 (default: 0.8)
- * @returns {Promise<string>} - Base64 encoded compressed image
+ * @param {number} options.quality - Initial JPEG quality 0-1 (default: 0.8)
+ * @param {number} options.maxSize - Maximum compressed size in bytes (default: 100KB)
+ * @returns {Promise<{dataUrl: string, size: number, quality: number, warning: string|null}>}
  */
 export async function compressImage(file, options = {}) {
-  const { maxDimension = MAX_DIMENSION, quality = JPEG_QUALITY } = options;
+  const {
+    maxDimension = MAX_DIMENSION,
+    quality = JPEG_QUALITY,
+    maxSize = MAX_COMPRESSED_SIZE
+  } = options;
 
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -52,9 +64,31 @@ export async function compressImage(file, options = {}) {
 
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convert to JPEG for better compression
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-          resolve(compressedDataUrl);
+          // Progressive compression to meet size limit
+          let currentQuality = quality;
+          let compressedDataUrl = canvas.toDataURL('image/jpeg', currentQuality);
+          let compressedSize = getBase64Size(compressedDataUrl);
+          const minQuality = 0.3; // Don't go below 30% quality
+
+          // Reduce quality until we meet size limit or hit minimum quality
+          while (compressedSize > maxSize && currentQuality > minQuality) {
+            currentQuality -= 0.1;
+            compressedDataUrl = canvas.toDataURL('image/jpeg', currentQuality);
+            compressedSize = getBase64Size(compressedDataUrl);
+          }
+
+          // Generate warning if still too large
+          let warning = null;
+          if (compressedSize > maxSize) {
+            warning = `Image is ${formatFileSize(compressedSize)} (target: ${formatFileSize(maxSize)}). Consider using a smaller image.`;
+          }
+
+          resolve({
+            dataUrl: compressedDataUrl,
+            size: compressedSize,
+            quality: currentQuality,
+            warning
+          });
         } catch (error) {
           reject(new Error('Failed to compress image: ' + error.message));
         }

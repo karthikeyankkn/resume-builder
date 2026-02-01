@@ -51,15 +51,22 @@ export default function PersonalInfo() {
     setCompressionProgress('Processing image...');
 
     try {
-      // Compress image to max 400px dimension with 0.8 JPEG quality
-      const compressedImage = await compressImage(file, {
+      // Compress image to max 400px dimension with size limit
+      const result = await compressImage(file, {
         maxDimension: 400,
-        quality: 0.8
+        quality: 0.8,
+        maxSize: 100 * 1024 // 100KB max for localStorage efficiency
       });
 
       setCompressionProgress('Saving...');
-      updatePersonalInfo('photo', compressedImage);
-      setFileSizeWarning(null);
+      updatePersonalInfo('photo', result.dataUrl);
+
+      // Show warning if image is still large after compression
+      if (result.warning) {
+        setFileSizeWarning(result.warning);
+      } else {
+        setFileSizeWarning(null);
+      }
     } catch (error) {
       setUploadError('Failed to process image. Please try another file.');
       console.error('Image compression error:', error);

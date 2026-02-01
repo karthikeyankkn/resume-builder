@@ -3,6 +3,28 @@ import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 import { debouncedStorage } from '../utils/debouncedStorage';
 
+/**
+ * Deep clone an object to prevent state mutation
+ * Handles nested arrays and objects commonly found in resume data
+ * @param {*} obj - Object to clone
+ * @returns {*} - Deep cloned object
+ */
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => deepClone(item));
+  }
+  const cloned = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      cloned[key] = deepClone(obj[key]);
+    }
+  }
+  return cloned;
+}
+
 const defaultResume = {
   id: uuidv4(),
   metadata: {
@@ -187,7 +209,7 @@ export const useResumeStore = create(
           resume: {
             ...state.resume,
             experience: state.resume.experience.map((exp) =>
-              exp.id === id ? { ...exp, [field]: value } : exp
+              exp.id === id ? { ...exp, [field]: deepClone(value) } : deepClone(exp)
             )
           }
         })),
@@ -237,7 +259,7 @@ export const useResumeStore = create(
           resume: {
             ...state.resume,
             education: state.resume.education.map((edu) =>
-              edu.id === id ? { ...edu, [field]: value } : edu
+              edu.id === id ? { ...edu, [field]: deepClone(value) } : deepClone(edu)
             )
           }
         })),
@@ -281,7 +303,7 @@ export const useResumeStore = create(
             ...state.resume,
             skills: {
               categories: state.resume.skills.categories.map((cat) =>
-                cat.id === id ? { ...cat, [field]: value } : cat
+                cat.id === id ? { ...cat, [field]: deepClone(value) } : deepClone(cat)
               )
             }
           }
@@ -324,7 +346,7 @@ export const useResumeStore = create(
           resume: {
             ...state.resume,
             projects: state.resume.projects.map((proj) =>
-              proj.id === id ? { ...proj, [field]: value } : proj
+              proj.id === id ? { ...proj, [field]: deepClone(value) } : deepClone(proj)
             )
           }
         })),
@@ -372,7 +394,7 @@ export const useResumeStore = create(
           resume: {
             ...state.resume,
             certifications: state.resume.certifications.map((cert) =>
-              cert.id === id ? { ...cert, [field]: value } : cert
+              cert.id === id ? { ...cert, [field]: deepClone(value) } : deepClone(cert)
             )
           }
         })),
@@ -418,7 +440,7 @@ export const useResumeStore = create(
           resume: {
             ...state.resume,
             customSections: state.resume.customSections.map((sec) =>
-              sec.id === id ? { ...sec, [field]: value } : sec
+              sec.id === id ? { ...sec, [field]: deepClone(value) } : deepClone(sec)
             )
           }
         })),

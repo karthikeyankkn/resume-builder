@@ -1,7 +1,33 @@
 /**
- * ATS Keyword Analyzer
- * Extracts keywords from text and calculates match scores
- * 100% client-side - no external APIs
+ * ATS (Applicant Tracking System) Keyword Analyzer
+ *
+ * PURPOSE:
+ * Analyzes job descriptions and resumes to calculate keyword match scores,
+ * helping users optimize their resumes for ATS systems used by employers.
+ *
+ * ALGORITHM OVERVIEW:
+ * 1. Keyword Extraction: Identifies three types of keywords from text:
+ *    - Technical skills (from predefined dictionary by category)
+ *    - General keywords (meaningful words 4+ chars, excluding stop words)
+ *    - Phrases (2-3 word meaningful combinations)
+ *
+ * 2. Synonym Matching: Uses a synonym dictionary to match equivalent terms
+ *    (e.g., "REST API" matches "RESTful API", "React" matches "ReactJS")
+ *
+ * 3. Weighted Scoring: Calculates match percentage using weights:
+ *    - Technical skills: 3x weight (most important for ATS)
+ *    - Phrases: 2x weight (contextual relevance)
+ *    - General keywords: 1x weight (supporting terms)
+ *
+ * 4. Suggestion Generation: Provides actionable recommendations based on
+ *    missing keywords and overall score.
+ *
+ * USAGE:
+ *   const jobKeywords = extractKeywords(jobDescription);
+ *   const resumeKeywords = extractKeywords(extractResumeText(resume));
+ *   const results = calculateATSScore(jobKeywords, resumeKeywords);
+ *
+ * 100% client-side - no external APIs required
  */
 
 // Common words to ignore during keyword extraction

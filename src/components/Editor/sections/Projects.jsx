@@ -1,13 +1,29 @@
 import { Plus, Trash2, ChevronDown, ChevronUp, Link, ArrowUp, ArrowDown } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 import { useConfirm } from '../../../store/confirmStore';
 import TagInput from '../../common/TagInput';
+import { usePaginatedList } from '../../../hooks/usePaginatedList';
+import ListPagination from '../../common/ListPagination';
 
 export default function Projects() {
   const { resume, addProject, updateProject, removeProject, reorderProjects } = useResumeStore();
   const { confirm } = useConfirm();
   const [expandedItems, setExpandedItems] = useState({});
+
+  // Paginate for large lists (performance optimization)
+  const pagination = usePaginatedList(resume.projects, {
+    initialCount: 20,
+    incrementCount: 20,
+    threshold: 15,
+  });
+
+  // Reset pagination when items are added
+  useEffect(() => {
+    if (resume.projects.length > pagination.visibleCount) {
+      pagination.reset();
+    }
+  }, [resume.projects.length]);
 
   const toggleExpand = (id) => {
     setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -56,7 +72,7 @@ export default function Projects() {
       </div>
 
       <div className="space-y-4">
-        {resume.projects.map((project, index) => (
+        {pagination.visibleItems.map((project, index) => (
           <div
             key={project.id}
             className="border border-gray-200 rounded-lg overflow-hidden"
@@ -208,6 +224,18 @@ export default function Projects() {
           <p className="text-center text-gray-500 py-8">
             No projects added yet. Click "Add" to get started.
           </p>
+        )}
+
+        {pagination.needsPagination && (
+          <ListPagination
+            visibleCount={pagination.visibleCount}
+            totalCount={pagination.totalCount}
+            hiddenCount={pagination.hiddenCount}
+            hasMore={pagination.hasMore}
+            onShowMore={pagination.showMore}
+            onShowAll={pagination.showAll}
+            onShowLess={pagination.showLess}
+          />
         )}
       </div>
     </div>

@@ -1,17 +1,33 @@
 import { Plus, Trash2, ChevronDown, ChevronUp, ArrowUp, ArrowDown, AlertCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useResumeStore } from '../../../store/resumeStore';
 import { useConfirm } from '../../../store/confirmStore';
 import { useUIStore } from '../../../store/uiStore';
 import MonthPicker from '../../common/MonthPicker';
 import { validateDateRange } from '../../../utils/validationUtils';
 import { InlineStrengthIndicator } from '../../ImpactBuilder';
+import { usePaginatedList } from '../../../hooks/usePaginatedList';
+import ListPagination from '../../common/ListPagination';
 
 export default function Experience() {
   const { resume, addExperience, updateExperience, removeExperience, reorderExperience } = useResumeStore();
   const { confirm } = useConfirm();
   const { openImpactBuilder } = useUIStore();
   const [expandedItems, setExpandedItems] = useState({});
+
+  // Paginate for large lists (performance optimization for 100+ entries)
+  const pagination = usePaginatedList(resume.experience, {
+    initialCount: 20,
+    incrementCount: 20,
+    threshold: 15,
+  });
+
+  // Reset pagination when items are added
+  useEffect(() => {
+    if (resume.experience.length > pagination.visibleCount) {
+      pagination.reset();
+    }
+  }, [resume.experience.length]);
 
   const toggleExpand = (id) => {
     setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -57,7 +73,7 @@ export default function Experience() {
       </div>
 
       <div className="space-y-4">
-        {resume.experience.map((exp, index) => (
+        {pagination.visibleItems.map((exp, index) => (
           <div
             key={exp.id}
             className="border border-gray-200 rounded-lg overflow-hidden"
@@ -261,6 +277,18 @@ export default function Experience() {
           <p className="text-center text-gray-500 py-8">
             No experience added yet. Click "Add" to get started.
           </p>
+        )}
+
+        {pagination.needsPagination && (
+          <ListPagination
+            visibleCount={pagination.visibleCount}
+            totalCount={pagination.totalCount}
+            hiddenCount={pagination.hiddenCount}
+            hasMore={pagination.hasMore}
+            onShowMore={pagination.showMore}
+            onShowAll={pagination.showAll}
+            onShowLess={pagination.showLess}
+          />
         )}
       </div>
     </div>
