@@ -14,58 +14,16 @@ import { splitTextByNewlines } from '../../utils/textUtils';
 // Disable hyphenation to avoid potential issues
 Font.registerHyphenationCallback(word => [word]);
 
-// Track font loading status
-let fontsLoaded = false;
-let fontLoadError = null;
-
-// Register fonts with error handling and offline fallback
-const registerFonts = () => {
-  try {
-    Font.register({
-      family: 'Inter',
-      fonts: [
-        {
-          src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2',
-          fontWeight: 400
-        },
-        {
-          src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hjp-Ek-_EeA.woff2',
-          fontWeight: 500
-        },
-        {
-          src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hjp-Ek-_EeA.woff2',
-          fontWeight: 600
-        },
-        {
-          src: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hjp-Ek-_EeA.woff2',
-          fontWeight: 700
-        }
-      ]
-    });
-    fontsLoaded = true;
-  } catch (e) {
-    fontLoadError = e;
-    console.warn('Failed to register Inter font, using system fallback:', e);
-  }
-};
-
-// Attempt to register fonts
-registerFonts();
-
-// System font fallback stack for offline/error scenarios
-const FALLBACK_FONT_FAMILY = 'Helvetica';
-
-// Helper to get font family with fallback
+// Use built-in PDF fonts for reliability
+// Available: Helvetica, Times-Roman, Courier
 const getFontFamily = (preferredFont) => {
-  // If fonts failed to load or we're offline, use system fonts
-  if (fontLoadError || !fontsLoaded) {
-    return FALLBACK_FONT_FAMILY;
-  }
-  // Map custom fonts to registered fonts or fallbacks
+  // Map template fonts to built-in PDF fonts
   const fontMap = {
-    'Inter': 'Inter',
-    'Merriweather': 'Times-Roman', // Fallback for serif
-    'default': FALLBACK_FONT_FAMILY
+    'Inter': 'Helvetica',
+    'Merriweather': 'Times-Roman',
+    'Roboto': 'Helvetica',
+    'Open Sans': 'Helvetica',
+    'default': 'Helvetica'
   };
   return fontMap[preferredFont] || fontMap['default'];
 };
@@ -89,6 +47,17 @@ const parsePadding = (padding, defaultPadding) => {
   if (!padding) return defaultPadding;
   const parsed = parseInt(padding, 10);
   return isNaN(parsed) ? defaultPadding : parsed;
+};
+
+// Check if a color is dark (for contrast calculation)
+const isDarkColor = (hexColor) => {
+  if (!hexColor || hexColor === 'transparent') return false;
+  const hex = hexColor.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness < 128;
 };
 
 // Progress bar component for skills in PDF
@@ -145,18 +114,18 @@ export default function ResumePDF({ resume, template }) {
     sidebarBg: templateColors.sidebarBg || '#f8fafc'
   };
 
-  // Font sizes from template
+  // Font sizes from template (improved defaults for better typography)
   const fontSizes = {
-    name: parseFontSize(templateFonts.sizes?.name, 20),
-    title: parseFontSize(templateFonts.sizes?.title, 11),
-    sectionTitle: parseFontSize(templateFonts.sizes?.sectionTitle, 10),
-    body: parseFontSize(templateFonts.sizes?.body, 9)
+    name: parseFontSize(templateFonts.sizes?.name, 24),
+    title: parseFontSize(templateFonts.sizes?.title, 13),
+    sectionTitle: parseFontSize(templateFonts.sizes?.sectionTitle, 12),
+    body: parseFontSize(templateFonts.sizes?.body, 10.5)
   };
 
-  // Spacing from template
-  const padding = parsePadding(templateSpacing.padding, 35);
-  const sectionGap = parsePadding(templateSpacing.sectionGap, 10);
-  const itemGap = parsePadding(templateSpacing.itemGap, 8);
+  // Spacing from template (improved defaults for better visual hierarchy)
+  const padding = parsePadding(templateSpacing.padding, 36);
+  const sectionGap = parsePadding(templateSpacing.sectionGap, 16);
+  const itemGap = parsePadding(templateSpacing.itemGap, 14);
 
   // Layout settings
   const hasSidebar = templateLayout.sidebar?.enabled;
@@ -174,6 +143,11 @@ export default function ResumePDF({ resume, template }) {
   const skillBarColor = templateColors.skillBar || '#800080';
   const accentColor = templateColors.accent || '#2E8B57';
 
+  // Header background support (to match preview)
+  const headerBg = templateColors.headerBg || colors.background;
+  const hasHeaderBg = headerBg && headerBg !== colors.background;
+  const headerIsDark = isDarkColor(headerBg);
+
   // Get font family with fallback for offline scenarios
   const bodyFont = getFontFamily(templateFonts.body || 'Inter');
 
@@ -182,45 +156,52 @@ export default function ResumePDF({ resume, template }) {
     page: {
       fontFamily: bodyFont,
       fontSize: fontSizes.body,
-      paddingTop: 30,
-      paddingBottom: 30,
-      paddingHorizontal: padding,
+      paddingTop: hasHeaderBg ? 0 : 32,
+      paddingBottom: 32,
+      paddingHorizontal: hasHeaderBg ? 0 : padding,
       backgroundColor: colors.background,
-      color: colors.text
+      color: colors.text,
+      lineHeight: 1.5
     },
     header: {
       textAlign: headerStyle === 'centered' ? 'center' : 'left',
       alignItems: headerStyle === 'centered' ? 'center' : 'flex-start',
-      marginBottom: 12
+      marginBottom: 16,
+      backgroundColor: hasHeaderBg ? headerBg : 'transparent',
+      padding: hasHeaderBg ? padding : 0
     },
     profileImage: {
-      width: 60,
-      height: 60,
-      borderRadius: 30,
-      marginBottom: 8,
+      width: 70,
+      height: 70,
+      borderRadius: 35,
+      marginBottom: 10,
       objectFit: 'cover'
     },
     name: {
       fontSize: fontSizes.name,
       fontWeight: 700,
-      color: colors.text,
-      marginBottom: 2
+      color: headerIsDark ? '#ffffff' : colors.text,
+      marginBottom: 4,
+      letterSpacing: -0.5,
+      lineHeight: 1.2
     },
     title: {
       fontSize: fontSizes.title,
-      color: colors.primary,
-      marginBottom: 6
+      color: headerIsDark ? (accentColor || '#93c5fd') : colors.primary,
+      marginBottom: 10,
+      fontWeight: 500,
+      letterSpacing: 0.2
     },
     contactRow: {
       flexDirection: 'row',
       justifyContent: headerStyle === 'centered' ? 'center' : 'flex-start',
       flexWrap: 'wrap',
-      gap: 10,
-      fontSize: 8,
-      color: colors.secondary
+      gap: 12,
+      fontSize: 9.5,
+      color: headerIsDark ? 'rgba(255,255,255,0.85)' : colors.secondary
     },
     contactLink: {
-      color: colors.secondary,
+      color: headerIsDark ? 'rgba(255,255,255,0.85)' : colors.secondary,
       textDecoration: 'none'
     },
     section: {
@@ -231,15 +212,15 @@ export default function ResumePDF({ resume, template }) {
       fontWeight: 600,
       color: colors.primary,
       textTransform: 'uppercase',
-      letterSpacing: 0.5,
-      marginBottom: 5,
-      paddingBottom: 2,
-      borderBottomWidth: 1,
+      letterSpacing: 1,
+      marginBottom: 8,
+      paddingBottom: 4,
+      borderBottomWidth: 1.5,
       borderBottomColor: colors.primary
     },
     summary: {
       fontSize: fontSizes.body,
-      lineHeight: 1.4,
+      lineHeight: 1.6,
       color: colors.secondary
     },
     experienceItem: {
@@ -248,49 +229,53 @@ export default function ResumePDF({ resume, template }) {
     experienceHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: 1
+      marginBottom: 3
     },
     experienceLeft: {
       flex: 1
     },
     experienceRight: {
       textAlign: 'right',
-      fontSize: 8,
+      fontSize: 9.5,
       color: colors.secondary
     },
     positionTitle: {
       fontSize: fontSizes.sectionTitle,
       fontWeight: 600,
-      color: colors.text
+      color: colors.text,
+      lineHeight: 1.3
     },
     companyName: {
       fontSize: fontSizes.body,
-      color: colors.primary
+      color: colors.primary,
+      fontWeight: 500
     },
     description: {
-      fontSize: 8,
+      fontSize: 10,
       color: colors.secondary,
-      marginTop: 1,
-      marginBottom: 2
+      marginTop: 4,
+      marginBottom: 6,
+      lineHeight: 1.5
     },
     bulletList: {
-      marginLeft: 10
+      marginLeft: 12
     },
     bulletItem: {
       flexDirection: 'row',
-      marginBottom: 1
+      marginBottom: 4
     },
     bullet: {
-      width: 8,
-      fontSize: 8
+      width: 10,
+      fontSize: 10,
+      color: colors.primary
     },
     bulletText: {
       flex: 1,
-      fontSize: 8,
-      lineHeight: 1.3
+      fontSize: 10,
+      lineHeight: 1.5
     },
     educationItem: {
-      marginBottom: 6
+      marginBottom: 12
     },
     educationHeader: {
       flexDirection: 'row',
@@ -299,36 +284,40 @@ export default function ResumePDF({ resume, template }) {
     degree: {
       fontSize: fontSizes.sectionTitle,
       fontWeight: 600,
-      color: colors.text
+      color: colors.text,
+      lineHeight: 1.3
     },
     institution: {
       fontSize: fontSizes.body,
-      color: colors.primary
+      color: colors.primary,
+      fontWeight: 500
     },
     skillCategory: {
       flexDirection: 'row',
-      marginBottom: 2,
-      flexWrap: 'wrap'
+      marginBottom: 6,
+      flexWrap: 'wrap',
+      alignItems: 'center'
     },
     skillName: {
       fontWeight: 600,
-      fontSize: 8,
+      fontSize: 10,
       color: colors.text,
-      width: hasSidebar ? 'auto' : 100,
-      marginRight: hasSidebar ? 4 : 0
+      width: hasSidebar ? 'auto' : 110,
+      marginRight: hasSidebar ? 6 : 0
     },
     skillItems: {
       flex: 1,
-      fontSize: 8,
-      color: colors.secondary
+      fontSize: 10,
+      color: colors.secondary,
+      lineHeight: 1.5
     },
     projectItem: {
-      marginBottom: 6
+      marginBottom: 12
     },
     projectHeader: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 1
+      marginBottom: 3
     },
     projectName: {
       fontSize: fontSizes.body,
@@ -336,37 +325,38 @@ export default function ResumePDF({ resume, template }) {
       color: colors.text
     },
     projectLink: {
-      fontSize: 8,
+      fontSize: 9.5,
       color: colors.primary,
-      marginLeft: 4,
+      marginLeft: 6,
       textDecoration: 'none'
     },
     projectTech: {
-      fontSize: 8,
+      fontSize: 9.5,
       color: colors.primary,
-      marginBottom: 1
+      marginBottom: 4,
+      fontStyle: 'italic'
     },
     certificationItem: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: 3
+      marginBottom: 8
     },
     certName: {
       fontSize: fontSizes.body,
-      fontWeight: 500,
+      fontWeight: 600,
       color: colors.text
     },
     certIssuer: {
-      fontSize: 8,
+      fontSize: 9.5,
       color: colors.secondary
     },
     certDate: {
-      fontSize: 8,
+      fontSize: 9.5,
       color: colors.secondary
     },
     twoColumnLayout: {
       flexDirection: 'row',
-      gap: 16
+      gap: 18
     },
     mainColumn: {
       flex: 1
@@ -374,43 +364,43 @@ export default function ResumePDF({ resume, template }) {
     sidebarColumn: {
       width: '30%',
       backgroundColor: colors.sidebarBg,
-      padding: 10,
-      borderRadius: 4
+      padding: 16,
+      borderRadius: 6
     },
     // Modern 2026 full-height sidebar styles
     fullHeightSidebar: {
       width: '35%',
       backgroundColor: sidebarBg || '#001F3F',
-      padding: 20,
+      padding: 24,
       minHeight: '100%'
     },
     sidebarText: {
       color: sidebarText,
-      fontSize: 8
+      fontSize: 9.5
     },
     sidebarSectionTitle: {
       fontSize: fontSizes.sectionTitle,
       fontWeight: 600,
       color: sidebarText,
       textTransform: 'uppercase',
-      letterSpacing: 0.5,
-      marginBottom: 8,
-      marginTop: 14,
-      paddingBottom: 4,
+      letterSpacing: 1,
+      marginBottom: 12,
+      marginTop: 18,
+      paddingBottom: 6,
       borderBottomWidth: 1,
       borderBottomColor: 'rgba(255,255,255,0.3)'
     },
     sidebarContactItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 6
+      marginBottom: 10
     },
     sidebarContactIcon: {
-      width: 20,
-      height: 20,
-      borderRadius: 10,
+      width: 26,
+      height: 26,
+      borderRadius: 13,
       backgroundColor: 'rgba(255,255,255,0.15)',
-      marginRight: 8,
+      marginRight: 10,
       alignItems: 'center',
       justifyContent: 'center'
     },
@@ -446,6 +436,7 @@ export default function ResumePDF({ resume, template }) {
   const skills = resume.skills || { categories: [] };
   const projects = resume.projects || [];
   const certifications = resume.certifications || [];
+  const customSections = resume.customSections || [];
 
   // Render Summary
   const renderSummary = () => (
@@ -649,6 +640,47 @@ export default function ResumePDF({ resume, template }) {
     )
   );
 
+  // Render Custom Sections
+  const renderCustomSections = () => (
+    customSections.length > 0 && (
+      <>
+        {customSections.map((section) => (
+          <View key={section.id} style={styles.section}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            {section.type === 'text' ? (
+              <Text style={styles.summary}>
+                {section.content?.[0]?.text || ''}
+              </Text>
+            ) : section.type === 'grid' ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                {(section.content || []).filter(item => item.text).map((item) => {
+                  const [label, value] = item.text.includes(':')
+                    ? item.text.split(':').map(s => s.trim())
+                    : [item.text, ''];
+                  return (
+                    <View key={item.id} style={{ width: '50%', flexDirection: 'row', marginBottom: 2 }}>
+                      <Text style={{ fontWeight: 500, fontSize: 8, color: colors.text }}>{label}</Text>
+                      {value && <Text style={{ fontSize: 8, color: colors.secondary, marginLeft: 4 }}>{value}</Text>}
+                    </View>
+                  );
+                })}
+              </View>
+            ) : (
+              <View style={styles.bulletList}>
+                {(section.content || []).filter(item => item.text).map((item) => (
+                  <View key={item.id} style={styles.bulletItem}>
+                    <Text style={styles.bullet}>•</Text>
+                    <Text style={styles.bulletText}>{item.text}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        ))}
+      </>
+    )
+  );
+
   // Get main content sections (excluding sidebar sections)
   const renderMainSections = () => {
     const sections = {
@@ -660,9 +692,17 @@ export default function ResumePDF({ resume, template }) {
       certifications: renderCertifications()
     };
 
+    // Use template's section order, falling back to default order
+    const defaultOrder = ['summary', 'experience', 'education', 'skills', 'projects', 'certifications'];
+    const templateOrder = templateLayout.sectionOrder || defaultOrder;
+
+    // Filter to only sections that exist (excluding personalInfo which is in header)
+    const orderedKeys = templateOrder.filter(key => key !== 'personalInfo' && key in sections);
+
+    // Filter out sidebar sections if using sidebar layout
     const mainSectionKeys = hasSidebar
-      ? Object.keys(sections).filter(key => !sidebarSections.includes(key))
-      : Object.keys(sections);
+      ? orderedKeys.filter(key => !sidebarSections.includes(key))
+      : orderedKeys;
 
     return mainSectionKeys.map(key => sections[key]);
   };
@@ -771,6 +811,7 @@ export default function ResumePDF({ resume, template }) {
 
             {/* Main sections */}
             {renderMainSections()}
+            {renderCustomSections()}
           </View>
 
           {/* Right sidebar if position is right */}
@@ -846,25 +887,31 @@ export default function ResumePDF({ resume, template }) {
         </View>
 
         {/* Content Layout */}
-        {hasSidebar ? (
-          <View style={styles.twoColumnLayout}>
-            {sidebarPosition === 'left' && (
-              <View style={styles.sidebarColumn}>
-                {renderSidebarContent()}
+        <View style={hasHeaderBg ? { paddingHorizontal: padding } : {}}>
+          {hasSidebar ? (
+            <View style={styles.twoColumnLayout}>
+              {sidebarPosition === 'left' && (
+                <View style={styles.sidebarColumn}>
+                  {renderSidebarContent()}
+                </View>
+              )}
+              <View style={styles.mainColumn}>
+                {renderMainSections()}
+                {renderCustomSections()}
               </View>
-            )}
-            <View style={styles.mainColumn}>
-              {renderMainSections()}
+              {sidebarPosition === 'right' && (
+                <View style={styles.sidebarColumn}>
+                  {renderSidebarContent()}
+                </View>
+              )}
             </View>
-            {sidebarPosition === 'right' && (
-              <View style={styles.sidebarColumn}>
-                {renderSidebarContent()}
-              </View>
-            )}
-          </View>
-        ) : (
-          <View>{renderMainSections()}</View>
-        )}
+          ) : (
+            <View>
+              {renderMainSections()}
+              {renderCustomSections()}
+            </View>
+          )}
+        </View>
       </Page>
     </Document>
   );

@@ -194,9 +194,8 @@ function notifyStorageError(error, key) {
 }
 
 export function createDebouncedStorage(delay = 500) {
-  let timeoutId = null;
-  let pendingValue = null;
-  let pendingKey = null;
+  // Use a Map to track pending saves per key (fixes bug where multiple stores overwrite each other)
+  const pendingWrites = new Map();
 
   const safeSetItem = (key, value) => {
     try {
@@ -239,29 +238,31 @@ export function createDebouncedStorage(delay = 500) {
     },
 
     setItem: (name, value) => {
-      pendingKey = name;
-      pendingValue = value;
-
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      // Cancel any existing pending write for this key
+      const existing = pendingWrites.get(name);
+      if (existing) {
+        clearTimeout(existing.timeoutId);
       }
 
-      timeoutId = setTimeout(() => {
-        const serialized = JSON.stringify(pendingValue);
-        safeSetItem(pendingKey, serialized);
-        timeoutId = null;
-        pendingKey = null;
-        pendingValue = null;
+      // Schedule a new debounced write for this specific key
+      const timeoutId = setTimeout(() => {
+        const pending = pendingWrites.get(name);
+        if (pending) {
+          const serialized = JSON.stringify(pending.value);
+          safeSetItem(name, serialized);
+          pendingWrites.delete(name);
+        }
       }, delay);
+
+      pendingWrites.set(name, { timeoutId, value });
     },
 
     removeItem: (name) => {
       // Cancel any pending writes for this key
-      if (pendingKey === name) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-        pendingKey = null;
-        pendingValue = null;
+      const existing = pendingWrites.get(name);
+      if (existing) {
+        clearTimeout(existing.timeoutId);
+        pendingWrites.delete(name);
       }
       try {
         localStorage.removeItem(name);
@@ -272,21 +273,21 @@ export function createDebouncedStorage(delay = 500) {
 
     // Force immediate save (useful for explicit save actions)
     flush: () => {
-      if (timeoutId && pendingKey && pendingValue !== null) {
-        clearTimeout(timeoutId);
-        const serialized = JSON.stringify(pendingValue);
-        const success = safeSetItem(pendingKey, serialized);
-        timeoutId = null;
-        pendingKey = null;
-        pendingValue = null;
-        return success;
-      }
-      return true;
+      let allSuccess = true;
+      pendingWrites.forEach((pending, key) => {
+        clearTimeout(pending.timeoutId);
+        const serialized = JSON.stringify(pending.value);
+        if (!safeSetItem(key, serialized)) {
+          allSuccess = false;
+        }
+      });
+      pendingWrites.clear();
+      return allSuccess;
     },
 
     // Check if there's a pending write
     hasPendingWrite: () => {
-      return timeoutId !== null;
+      return pendingWrites.size > 0;
     }
   };
 }

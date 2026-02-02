@@ -219,46 +219,40 @@ export default function ExportModal() {
               )}
 
               {/* Download Button */}
-              <PDFDownloadLink
-                document={<ResumePDF resume={resume} template={template} />}
-                fileName={`${(resume.personalInfo.fullName || 'My_Resume').replace(/\s+/g, '_')}_Resume.pdf`}
-              >
-                {({ loading, error }) => (
-                  error ? (
-                    <div className="w-full p-4 bg-red-50 border border-red-200 rounded-xl">
-                      <p className="text-red-700 font-medium">Failed to generate PDF</p>
-                      <p className="text-red-600 text-sm mt-1">{error.message || 'An unknown error occurred'}</p>
-                    </div>
-                  ) : (
-                    <button
-                      className={`btn w-full py-3.5 text-base inline-flex items-center justify-center gap-2 ${
-                        canExport
-                          ? 'btn-primary'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
-                      disabled={loading || !canExport}
-                      title={!canExport ? 'Please fix validation errors or acknowledge them to export' : ''}
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Generating PDF...
-                        </>
-                      ) : !canExport ? (
-                        <>
-                          <AlertCircle className="w-5 h-5" />
-                          Fix Errors to Export
-                        </>
-                      ) : (
-                        <>
-                          <Download className="w-5 h-5" />
-                          Download PDF
-                        </>
-                      )}
-                    </button>
-                  )
-                )}
-              </PDFDownloadLink>
+              {!canExport ? (
+                <button
+                  className="btn w-full py-3.5 text-base inline-flex items-center justify-center gap-2 bg-gray-300 text-gray-500 cursor-not-allowed"
+                  disabled
+                  title="Please fix validation errors or acknowledge them to export"
+                >
+                  <AlertCircle className="w-5 h-5" />
+                  Fix Errors to Export
+                </button>
+              ) : (
+                <PDFDownloadLink
+                  document={<ResumePDF resume={resume} template={template} />}
+                  fileName={`${(resume.personalInfo.fullName || 'My_Resume').replace(/\s+/g, '_')}_Resume.pdf`}
+                  className="btn btn-primary w-full py-3.5 text-base inline-flex items-center justify-center gap-2 no-underline"
+                >
+                  {({ loading, error }) => (
+                    error ? (
+                      <span className="text-red-600">
+                        Error: {error.message || 'Failed to generate PDF'}
+                      </span>
+                    ) : loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Generating PDF...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-5 h-5" />
+                        Download PDF
+                      </>
+                    )
+                  )}
+                </PDFDownloadLink>
+              )}
             </div>
           ) : (
             <div className="space-y-5">
