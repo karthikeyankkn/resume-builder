@@ -137,6 +137,10 @@ export default function ResumePreview() {
   const headerIsDark = isDarkColor(headerBg);
 
   // Dynamic styles based on template
+  // A4 size: 210mm x 297mm (794px x 1123px at 96 DPI)
+  const A4_WIDTH_PX = 794;
+  const A4_HEIGHT_PX = 1123;
+
   const styles = {
     page: {
       fontFamily: `${fonts?.body || 'Inter'}, Helvetica, Arial, sans-serif`,
@@ -147,7 +151,8 @@ export default function ResumePreview() {
       paddingRight: hasHeader ? '0' : (spacing?.padding || '36px'),
       backgroundColor: colors?.background || '#ffffff',
       color: colors?.text || '#1e293b',
-      minHeight: '297mm',
+      width: `${A4_WIDTH_PX}px`,
+      minHeight: `${A4_HEIGHT_PX}px`,
       boxSizing: 'border-box',
       lineHeight: '1.5'
     },
@@ -373,7 +378,7 @@ export default function ResumePreview() {
       padding: spacing?.sidebarPadding || '24px',
       backgroundColor: colors?.sidebarBg || '#001F3F',
       color: colors?.sidebarText || '#ffffff',
-      minHeight: '297mm',
+      minHeight: `${A4_HEIGHT_PX}px`,
       width: '35%'
     },
     sidebarContactItem: {
