@@ -223,7 +223,8 @@ export default function ResumePreview() {
       fontSize: fonts?.sizes?.body || '10.5px',
       lineHeight: '1.6',
       color: colors?.secondary || '#64748b',
-      whiteSpace: 'pre-line'
+      whiteSpace: 'pre-line',
+      textAlign: 'justify'
     },
     experienceItem: {
       marginBottom: spacing?.itemGap || '14px',
