@@ -146,7 +146,7 @@ export default function ResumePreview() {
       fontFamily: `${fonts?.body || 'Inter'}, Helvetica, Arial, sans-serif`,
       fontSize: fonts?.sizes?.body || '10.5px',
       paddingTop: hasHeader ? '0' : (spacing?.padding || '32px'),
-      paddingBottom: spacing?.padding || '32px',
+      paddingBottom: '0',
       paddingLeft: hasHeader ? '0' : (spacing?.padding || '36px'),
       paddingRight: hasHeader ? '0' : (spacing?.padding || '36px'),
       backgroundColor: colors?.background || '#ffffff',
@@ -193,27 +193,31 @@ export default function ResumePreview() {
       flexDirection: 'row',
       justifyContent: layout?.headerStyle === 'centered' ? 'center' : 'flex-start',
       flexWrap: 'wrap',
-      gap: '12px',
-      fontSize: '9.5px',
-      color: headerIsDark ? 'rgba(255,255,255,0.85)' : (colors?.secondary || '#64748b')
+      gap: '14px',
+      fontSize: '10px',
+      color: headerIsDark ? 'rgba(255,255,255,0.9)' : (colors?.text || '#1e293b'),
+      lineHeight: '1.4'
     },
     contactLink: {
-      color: headerIsDark ? 'rgba(255,255,255,0.85)' : (colors?.secondary || '#64748b'),
-      textDecoration: 'none'
+      color: headerIsDark ? 'rgba(255,255,255,0.9)' : (colors?.primary || '#2563eb'),
+      textDecoration: 'none',
+      borderBottom: headerIsDark ? 'none' : `1px solid transparent`,
+      transition: 'border-color 0.2s'
     },
     section: {
-      marginBottom: spacing?.sectionGap || '16px'
+      marginBottom: spacing?.sectionGap || '18px',
+      marginTop: '6px'
     },
     sectionTitle: {
-      fontSize: fonts?.sizes?.sectionTitle || '12px',
-      fontWeight: '600',
+      fontSize: fonts?.sizes?.sectionTitle || '11px',
+      fontWeight: '700',
       fontFamily: `${fonts?.heading || 'Inter'}, Helvetica, Arial, sans-serif`,
       color: colors?.primary || '#2563eb',
       textTransform: 'uppercase',
-      letterSpacing: '1px',
-      marginBottom: '8px',
-      paddingBottom: '4px',
-      borderBottom: `1.5px solid ${colors?.primary || '#2563eb'}`
+      letterSpacing: '1.2px',
+      marginBottom: '10px',
+      paddingBottom: '5px',
+      borderBottom: `2px solid ${colors?.primary || '#2563eb'}`
     },
     summary: {
       fontSize: fonts?.sizes?.body || '10.5px',
@@ -230,26 +234,30 @@ export default function ResumePreview() {
       display: 'flex',
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: '3px'
+      marginBottom: '2px',
+      alignItems: 'flex-start'
     },
     experienceLeft: {
       flex: 1
     },
     experienceRight: {
       textAlign: 'right',
-      fontSize: '9.5px',
-      color: colors?.secondary || '#64748b'
+      fontSize: '10px',
+      color: colors?.secondary || '#64748b',
+      lineHeight: '1.4'
     },
     positionTitle: {
-      fontSize: fonts?.sizes?.sectionTitle || '12px',
-      fontWeight: '600',
+      fontSize: '12px',
+      fontWeight: '700',
       color: colors?.text || '#1e293b',
-      lineHeight: '1.3'
+      lineHeight: '1.3',
+      marginBottom: '1px'
     },
     companyName: {
-      fontSize: fonts?.sizes?.body || '10.5px',
-      color: colors?.primary || '#2563eb',
-      fontWeight: '500'
+      fontSize: '10.5px',
+      color: colors?.secondary || '#64748b',
+      fontWeight: '400',
+      fontStyle: 'italic'
     },
     description: {
       fontSize: '10px',
@@ -260,63 +268,71 @@ export default function ResumePreview() {
       lineHeight: '1.5'
     },
     bulletList: {
-      marginLeft: '12px'
+      marginLeft: '8px',
+      marginTop: '4px'
     },
     bulletItem: {
       display: 'flex',
       flexDirection: 'row',
-      marginBottom: '4px'
+      marginBottom: '3px',
+      alignItems: 'flex-start'
     },
     bullet: {
-      width: '10px',
+      width: '12px',
       fontSize: '10px',
-      color: colors?.primary || '#2563eb'
+      color: colors?.secondary || '#64748b',
+      lineHeight: '1.45'
     },
     bulletText: {
       flex: 1,
       fontSize: '10px',
-      lineHeight: '1.5'
+      lineHeight: '1.45',
+      color: colors?.text || '#1e293b'
     },
     educationItem: {
-      marginBottom: '12px',
+      marginBottom: '10px',
       breakInside: 'avoid',
       pageBreakInside: 'avoid'
     },
     educationHeader: {
       display: 'flex',
       flexDirection: 'row',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      alignItems: 'flex-start'
     },
     degree: {
-      fontSize: fonts?.sizes?.sectionTitle || '12px',
-      fontWeight: '600',
+      fontSize: '11px',
+      fontWeight: '700',
       color: colors?.text || '#1e293b',
       lineHeight: '1.3'
     },
     institution: {
-      fontSize: fonts?.sizes?.body || '10.5px',
-      color: colors?.primary || '#2563eb',
-      fontWeight: '500'
+      fontSize: '10.5px',
+      color: colors?.secondary || '#64748b',
+      fontWeight: '400',
+      fontStyle: 'italic'
     },
     skillCategory: {
       display: 'flex',
       flexDirection: 'row',
-      marginBottom: '6px',
-      flexWrap: 'wrap',
-      alignItems: 'baseline'
+      marginBottom: '8px',
+      flexWrap: 'nowrap',
+      alignItems: 'flex-start'
     },
     skillName: {
       fontWeight: '600',
-      fontSize: '10px',
+      fontSize: '10.5px',
       color: colors?.text || '#1e293b',
-      width: hasSidebar ? 'auto' : '110px',
-      marginRight: hasSidebar ? '6px' : '0',
-      flexShrink: 0
+      minWidth: hasSidebar ? 'auto' : '145px',
+      width: hasSidebar ? 'auto' : '145px',
+      marginRight: hasSidebar ? '8px' : '12px',
+      flexShrink: 0,
+      lineHeight: '1.5'
     },
     skillItems: {
       flex: 1,
-      fontSize: '10px',
-      color: colors?.secondary || '#64748b',
+      fontSize: '10.5px',
+      color: colors?.text || '#1e293b',
       lineHeight: '1.5'
     },
     projectItem: {
@@ -327,25 +343,26 @@ export default function ResumePreview() {
     projectHeader: {
       display: 'flex',
       flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: '3px'
+      alignItems: 'baseline',
+      marginBottom: '4px',
+      gap: '8px'
     },
     projectName: {
-      fontSize: fonts?.sizes?.body || '10.5px',
-      fontWeight: '600',
+      fontSize: '11px',
+      fontWeight: '700',
       color: colors?.text || '#1e293b'
     },
     projectLink: {
-      fontSize: '9.5px',
+      fontSize: '10px',
       color: colors?.primary || '#2563eb',
-      marginLeft: '6px',
-      textDecoration: 'none'
+      textDecoration: 'underline',
+      textUnderlineOffset: '2px'
     },
     projectTech: {
-      fontSize: '9.5px',
-      color: colors?.primary || '#2563eb',
-      marginBottom: '4px',
-      fontStyle: 'italic'
+      fontSize: '10px',
+      color: colors?.secondary || '#64748b',
+      marginBottom: '5px',
+      fontWeight: '500'
     },
     certificationItem: {
       display: 'flex',
@@ -356,17 +373,19 @@ export default function ResumePreview() {
       pageBreakInside: 'avoid'
     },
     certName: {
-      fontSize: fonts?.sizes?.body || '10.5px',
+      fontSize: '10.5px',
       fontWeight: '600',
       color: colors?.text || '#1e293b'
     },
     certIssuer: {
-      fontSize: '9.5px',
-      color: colors?.secondary || '#64748b'
+      fontSize: '10px',
+      color: colors?.secondary || '#64748b',
+      fontStyle: 'italic'
     },
     certDate: {
-      fontSize: '9.5px',
-      color: colors?.secondary || '#64748b'
+      fontSize: '10px',
+      color: colors?.secondary || '#64748b',
+      whiteSpace: 'nowrap'
     },
     sidebar: {
       padding: '16px',
@@ -584,7 +603,7 @@ export default function ResumePreview() {
             <span style={styles.projectName}>{project.name}</span>
             {project.link && (
               <a href={`https://${project.link}`} style={styles.projectLink}>
-                [Link]
+                View ↗
               </a>
             )}
           </div>
@@ -793,7 +812,10 @@ export default function ResumePreview() {
       <div style={{
         ...styles.page,
         display: 'flex',
-        padding: 0,
+        paddingTop: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+        paddingBottom: 0,
         gap: 0
       }}>
         {/* Full-height Sidebar */}
@@ -940,7 +962,8 @@ export default function ResumePreview() {
         <div style={{
           display: 'flex',
           gap: '16px',
-          padding: hasHeader ? `0 ${spacing?.padding || '35px'} 0 ${spacing?.padding || '35px'}` : '0'
+          paddingLeft: hasHeader ? (spacing?.padding || '36px') : '0',
+          paddingRight: hasHeader ? (spacing?.padding || '36px') : '0'
         }}>
           {sidebarPosition === 'left' && (
             <div style={{ ...styles.sidebar, width: '30%' }}>
@@ -959,7 +982,8 @@ export default function ResumePreview() {
         </div>
       ) : (
         <div style={{
-          padding: hasHeader ? `0 ${spacing?.padding || '35px'} 0 ${spacing?.padding || '35px'}` : '0'
+          paddingLeft: hasHeader ? (spacing?.padding || '36px') : '0',
+          paddingRight: hasHeader ? (spacing?.padding || '36px') : '0'
         }}>
           {renderMainSections()}
           {customSections.length > 0 && renderCustomSections()}

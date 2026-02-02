@@ -196,26 +196,28 @@ export default function ResumePDF({ resume, template }) {
       flexDirection: 'row',
       justifyContent: headerStyle === 'centered' ? 'center' : 'flex-start',
       flexWrap: 'wrap',
-      gap: 12,
-      fontSize: 9.5,
-      color: headerIsDark ? 'rgba(255,255,255,0.85)' : colors.secondary
+      gap: 14,
+      fontSize: 10,
+      color: headerIsDark ? 'rgba(255,255,255,0.9)' : colors.text,
+      lineHeight: 1.4
     },
     contactLink: {
-      color: headerIsDark ? 'rgba(255,255,255,0.85)' : colors.secondary,
+      color: headerIsDark ? 'rgba(255,255,255,0.9)' : colors.primary,
       textDecoration: 'none'
     },
     section: {
-      marginBottom: sectionGap
+      marginBottom: sectionGap,
+      marginTop: 6
     },
     sectionTitle: {
-      fontSize: fontSizes.sectionTitle,
-      fontWeight: 600,
+      fontSize: 11,
+      fontWeight: 700,
       color: colors.primary,
       textTransform: 'uppercase',
-      letterSpacing: 1,
-      marginBottom: 8,
-      paddingBottom: 4,
-      borderBottomWidth: 1.5,
+      letterSpacing: 1.2,
+      marginBottom: 10,
+      paddingBottom: 5,
+      borderBottomWidth: 2,
       borderBottomColor: colors.primary
     },
     summary: {
@@ -229,26 +231,30 @@ export default function ResumePDF({ resume, template }) {
     experienceHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: 3
+      marginBottom: 2,
+      alignItems: 'flex-start'
     },
     experienceLeft: {
       flex: 1
     },
     experienceRight: {
       textAlign: 'right',
-      fontSize: 9.5,
-      color: colors.secondary
+      fontSize: 10,
+      color: colors.secondary,
+      lineHeight: 1.4
     },
     positionTitle: {
-      fontSize: fontSizes.sectionTitle,
-      fontWeight: 600,
+      fontSize: 12,
+      fontWeight: 700,
       color: colors.text,
-      lineHeight: 1.3
+      lineHeight: 1.3,
+      marginBottom: 1
     },
     companyName: {
-      fontSize: fontSizes.body,
-      color: colors.primary,
-      fontWeight: 500
+      fontSize: 10.5,
+      color: colors.secondary,
+      fontWeight: 400,
+      fontStyle: 'italic'
     },
     description: {
       fontSize: 10,
@@ -258,57 +264,64 @@ export default function ResumePDF({ resume, template }) {
       lineHeight: 1.5
     },
     bulletList: {
-      marginLeft: 12
+      marginLeft: 8,
+      marginTop: 4
     },
     bulletItem: {
       flexDirection: 'row',
-      marginBottom: 4
+      marginBottom: 3,
+      alignItems: 'flex-start'
     },
     bullet: {
-      width: 10,
+      width: 12,
       fontSize: 10,
-      color: colors.primary
+      color: colors.secondary,
+      lineHeight: 1.45
     },
     bulletText: {
       flex: 1,
       fontSize: 10,
-      lineHeight: 1.5
+      lineHeight: 1.45,
+      color: colors.text
     },
     educationItem: {
-      marginBottom: 12
+      marginBottom: 10
     },
     educationHeader: {
       flexDirection: 'row',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      alignItems: 'flex-start'
     },
     degree: {
-      fontSize: fontSizes.sectionTitle,
-      fontWeight: 600,
+      fontSize: 11,
+      fontWeight: 700,
       color: colors.text,
       lineHeight: 1.3
     },
     institution: {
-      fontSize: fontSizes.body,
-      color: colors.primary,
-      fontWeight: 500
+      fontSize: 10.5,
+      color: colors.secondary,
+      fontWeight: 400,
+      fontStyle: 'italic'
     },
     skillCategory: {
       flexDirection: 'row',
-      marginBottom: 6,
-      flexWrap: 'wrap',
-      alignItems: 'center'
+      marginBottom: 8,
+      flexWrap: 'nowrap',
+      alignItems: 'flex-start'
     },
     skillName: {
       fontWeight: 600,
-      fontSize: 10,
+      fontSize: 10.5,
       color: colors.text,
-      width: hasSidebar ? 'auto' : 110,
-      marginRight: hasSidebar ? 6 : 0
+      width: hasSidebar ? 'auto' : 145,
+      marginRight: hasSidebar ? 8 : 12,
+      lineHeight: 1.5
     },
     skillItems: {
       flex: 1,
-      fontSize: 10,
-      color: colors.secondary,
+      fontSize: 10.5,
+      color: colors.text,
       lineHeight: 1.5
     },
     projectItem: {
@@ -317,24 +330,25 @@ export default function ResumePDF({ resume, template }) {
     projectHeader: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 3
+      marginBottom: 4,
+      gap: 8
     },
     projectName: {
-      fontSize: fontSizes.body,
-      fontWeight: 600,
+      fontSize: 11,
+      fontWeight: 700,
       color: colors.text
     },
     projectLink: {
-      fontSize: 9.5,
+      fontSize: 10,
       color: colors.primary,
-      marginLeft: 6,
-      textDecoration: 'none'
+      marginLeft: 8,
+      textDecoration: 'underline'
     },
     projectTech: {
-      fontSize: 9.5,
-      color: colors.primary,
-      marginBottom: 4,
-      fontStyle: 'italic'
+      fontSize: 10,
+      color: colors.secondary,
+      marginBottom: 5,
+      fontWeight: 500
     },
     certificationItem: {
       flexDirection: 'row',
@@ -342,16 +356,17 @@ export default function ResumePDF({ resume, template }) {
       marginBottom: 8
     },
     certName: {
-      fontSize: fontSizes.body,
+      fontSize: 10.5,
       fontWeight: 600,
       color: colors.text
     },
     certIssuer: {
-      fontSize: 9.5,
-      color: colors.secondary
+      fontSize: 10,
+      color: colors.secondary,
+      fontStyle: 'italic'
     },
     certDate: {
-      fontSize: 9.5,
+      fontSize: 10,
       color: colors.secondary
     },
     twoColumnLayout: {
@@ -590,7 +605,7 @@ export default function ResumePDF({ resume, template }) {
               <Text style={styles.projectName}>{project.name}</Text>
               {project.link && (
                 <Link src={`https://${project.link}`} style={styles.projectLink}>
-                  [Link]
+                  View
                 </Link>
               )}
             </View>
@@ -772,7 +787,7 @@ export default function ResumePDF({ resume, template }) {
         subject="Professional Resume"
         keywords="resume, cv, professional"
       >
-        <Page size="A4" style={{ ...styles.page, flexDirection: 'row', padding: 0 }}>
+        <Page size="A4" style={{ ...styles.page, flexDirection: 'row', paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 32 }}>
           {/* Full-height Sidebar */}
           {sidebarPosition === 'left' && (
             <View style={styles.fullHeightSidebar}>
