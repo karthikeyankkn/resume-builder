@@ -108,7 +108,7 @@ export default function ResumePDF({ resume, template }) {
   const colors = {
     primary: templateColors.primary || '#2563eb',
     text: templateColors.text || '#1e293b',
-    secondary: templateColors.secondary || '#64748b',
+    secondary: templateColors.secondary || '#475569',
     border: templateColors.border || '#e2e8f0',
     background: templateColors.background || '#ffffff',
     sidebarBg: templateColors.sidebarBg || '#f8fafc'
@@ -116,10 +116,10 @@ export default function ResumePDF({ resume, template }) {
 
   // Font sizes from template (improved defaults for better typography)
   const fontSizes = {
-    name: parseFontSize(templateFonts.sizes?.name, 24),
+    name: parseFontSize(templateFonts.sizes?.name, 26),
     title: parseFontSize(templateFonts.sizes?.title, 13),
     sectionTitle: parseFontSize(templateFonts.sizes?.sectionTitle, 12),
-    body: parseFontSize(templateFonts.sizes?.body, 10.5)
+    body: parseFontSize(templateFonts.sizes?.body, 11)
   };
 
   // Spacing from template (improved defaults for better visual hierarchy)
@@ -161,7 +161,7 @@ export default function ResumePDF({ resume, template }) {
       paddingHorizontal: hasHeaderBg ? 0 : padding,
       backgroundColor: colors.background,
       color: colors.text,
-      lineHeight: 1.5
+      lineHeight: 1.4
     },
     header: {
       textAlign: headerStyle === 'centered' ? 'center' : 'left',
@@ -244,24 +244,24 @@ export default function ResumePDF({ resume, template }) {
       lineHeight: 1.4
     },
     positionTitle: {
-      fontSize: 12,
+      fontSize: 12.5,
       fontWeight: 700,
       color: colors.text,
-      lineHeight: 1.3,
+      lineHeight: 1.2,
       marginBottom: 1
     },
     companyName: {
-      fontSize: 10.5,
-      color: colors.secondary,
-      fontWeight: 400,
-      fontStyle: 'italic'
+      fontSize: 11,
+      color: colors.text,
+      fontWeight: 600,
+      fontStyle: 'normal'
     },
     description: {
-      fontSize: 10,
+      fontSize: 10.5,
       color: colors.secondary,
       marginTop: 4,
       marginBottom: 6,
-      lineHeight: 1.5
+      lineHeight: 1.4
     },
     bulletList: {
       marginLeft: 8,
@@ -274,14 +274,14 @@ export default function ResumePDF({ resume, template }) {
     },
     bullet: {
       width: 12,
-      fontSize: 10,
+      fontSize: 10.5,
       color: colors.secondary,
-      lineHeight: 1.45
+      lineHeight: 1.4
     },
     bulletText: {
       flex: 1,
-      fontSize: 10,
-      lineHeight: 1.45,
+      fontSize: 10.5,
+      lineHeight: 1.4,
       color: colors.text
     },
     educationItem: {
@@ -293,16 +293,16 @@ export default function ResumePDF({ resume, template }) {
       alignItems: 'flex-start'
     },
     degree: {
-      fontSize: 11,
+      fontSize: 12,
       fontWeight: 700,
       color: colors.text,
-      lineHeight: 1.3
+      lineHeight: 1.2
     },
     institution: {
-      fontSize: 10.5,
-      color: colors.secondary,
-      fontWeight: 400,
-      fontStyle: 'italic'
+      fontSize: 11,
+      color: colors.text,
+      fontWeight: 600,
+      fontStyle: 'normal'
     },
     skillCategory: {
       flexDirection: 'row',
@@ -312,17 +312,17 @@ export default function ResumePDF({ resume, template }) {
     },
     skillName: {
       fontWeight: 600,
-      fontSize: 10.5,
+      fontSize: 11,
       color: colors.text,
       width: hasSidebar ? 'auto' : 145,
       marginRight: hasSidebar ? 8 : 12,
-      lineHeight: 1.5
+      lineHeight: 1.4
     },
     skillItems: {
       flex: 1,
-      fontSize: 10.5,
+      fontSize: 11,
       color: colors.text,
-      lineHeight: 1.5
+      lineHeight: 1.4
     },
     projectItem: {
       marginBottom: 12
@@ -334,7 +334,7 @@ export default function ResumePDF({ resume, template }) {
       gap: 8
     },
     projectName: {
-      fontSize: 11,
+      fontSize: 12,
       fontWeight: 700,
       color: colors.text
     },
@@ -356,7 +356,7 @@ export default function ResumePDF({ resume, template }) {
       marginBottom: 8
     },
     certName: {
-      fontSize: 10.5,
+      fontSize: 11,
       fontWeight: 600,
       color: colors.text
     },

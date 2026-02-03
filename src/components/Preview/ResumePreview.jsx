@@ -144,7 +144,7 @@ export default function ResumePreview() {
   const styles = {
     page: {
       fontFamily: `${fonts?.body || 'Inter'}, Helvetica, Arial, sans-serif`,
-      fontSize: fonts?.sizes?.body || '10.5px',
+      fontSize: fonts?.sizes?.body || '11px',
       paddingTop: hasHeader ? '0' : (spacing?.padding || '32px'),
       paddingBottom: '0',
       paddingLeft: hasHeader ? '0' : (spacing?.padding || '36px'),
@@ -154,7 +154,7 @@ export default function ResumePreview() {
       width: `${A4_WIDTH_PX}px`,
       minHeight: `${A4_HEIGHT_PX}px`,
       boxSizing: 'border-box',
-      lineHeight: '1.5'
+      lineHeight: '1.4'
     },
     header: {
       textAlign: layout?.headerStyle === 'centered' ? 'center' : 'left',
@@ -173,7 +173,7 @@ export default function ResumePreview() {
       border: `2px solid ${headerIsDark ? '#ffffff' : (colors?.primary || '#2563eb')}`
     },
     name: {
-      fontSize: fonts?.sizes?.name || '24px',
+      fontSize: fonts?.sizes?.name || '26px',
       fontWeight: '700',
       fontFamily: `${fonts?.heading || 'Inter'}, Helvetica, Arial, sans-serif`,
       color: headerIsDark ? '#ffffff' : (colors?.text || '#1e293b'),
@@ -209,7 +209,7 @@ export default function ResumePreview() {
       marginTop: '6px'
     },
     sectionTitle: {
-      fontSize: fonts?.sizes?.sectionTitle || '11px',
+      fontSize: fonts?.sizes?.sectionTitle || '12px',
       fontWeight: '700',
       fontFamily: `${fonts?.heading || 'Inter'}, Helvetica, Arial, sans-serif`,
       color: colors?.primary || '#2563eb',
@@ -220,11 +220,11 @@ export default function ResumePreview() {
       borderBottom: `2px solid ${colors?.primary || '#2563eb'}`
     },
     summary: {
-      fontSize: fonts?.sizes?.body || '10.5px',
+      fontSize: fonts?.sizes?.body || '11px',
       lineHeight: '1.6',
-      color: colors?.secondary || '#64748b',
+      color: colors?.secondary || '#475569',
       whiteSpace: 'pre-line',
-      textAlign: 'justify'
+      textAlign: 'left'
     },
     experienceItem: {
       marginBottom: spacing?.itemGap || '14px',
@@ -244,29 +244,29 @@ export default function ResumePreview() {
     experienceRight: {
       textAlign: 'right',
       fontSize: '10px',
-      color: colors?.secondary || '#64748b',
+      color: colors?.secondary || '#475569',
       lineHeight: '1.4'
     },
     positionTitle: {
-      fontSize: '12px',
+      fontSize: '12.5px',
       fontWeight: '700',
       color: colors?.text || '#1e293b',
-      lineHeight: '1.3',
+      lineHeight: '1.2',
       marginBottom: '1px'
     },
     companyName: {
-      fontSize: '10.5px',
-      color: colors?.secondary || '#64748b',
-      fontWeight: '400',
-      fontStyle: 'italic'
+      fontSize: '11px',
+      color: colors?.text || '#1e293b',
+      fontWeight: '600',
+      fontStyle: 'normal'
     },
     description: {
-      fontSize: '10px',
-      color: colors?.secondary || '#64748b',
+      fontSize: '10.5px',
+      color: colors?.secondary || '#475569',
       marginTop: '4px',
       marginBottom: '6px',
       whiteSpace: 'pre-line',
-      lineHeight: '1.5'
+      lineHeight: '1.4'
     },
     bulletList: {
       marginLeft: '8px',
@@ -280,14 +280,14 @@ export default function ResumePreview() {
     },
     bullet: {
       width: '12px',
-      fontSize: '10px',
-      color: colors?.secondary || '#64748b',
-      lineHeight: '1.45'
+      fontSize: '10.5px',
+      color: colors?.secondary || '#475569',
+      lineHeight: '1.4'
     },
     bulletText: {
       flex: 1,
-      fontSize: '10px',
-      lineHeight: '1.45',
+      fontSize: '10.5px',
+      lineHeight: '1.4',
       color: colors?.text || '#1e293b'
     },
     educationItem: {
@@ -302,16 +302,16 @@ export default function ResumePreview() {
       alignItems: 'flex-start'
     },
     degree: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '700',
       color: colors?.text || '#1e293b',
-      lineHeight: '1.3'
+      lineHeight: '1.2'
     },
     institution: {
-      fontSize: '10.5px',
-      color: colors?.secondary || '#64748b',
-      fontWeight: '400',
-      fontStyle: 'italic'
+      fontSize: '11px',
+      color: colors?.text || '#1e293b',
+      fontWeight: '600',
+      fontStyle: 'normal'
     },
     skillCategory: {
       display: 'flex',
@@ -322,19 +322,19 @@ export default function ResumePreview() {
     },
     skillName: {
       fontWeight: '600',
-      fontSize: '10.5px',
+      fontSize: '11px',
       color: colors?.text || '#1e293b',
       minWidth: hasSidebar ? 'auto' : '145px',
       width: hasSidebar ? 'auto' : '145px',
       marginRight: hasSidebar ? '8px' : '12px',
       flexShrink: 0,
-      lineHeight: '1.5'
+      lineHeight: '1.4'
     },
     skillItems: {
       flex: 1,
-      fontSize: '10.5px',
+      fontSize: '11px',
       color: colors?.text || '#1e293b',
-      lineHeight: '1.5'
+      lineHeight: '1.4'
     },
     projectItem: {
       marginBottom: '12px',
@@ -349,7 +349,7 @@ export default function ResumePreview() {
       gap: '8px'
     },
     projectName: {
-      fontSize: '11px',
+      fontSize: '12px',
       fontWeight: '700',
       color: colors?.text || '#1e293b'
     },
@@ -361,7 +361,7 @@ export default function ResumePreview() {
     },
     projectTech: {
       fontSize: '10px',
-      color: colors?.secondary || '#64748b',
+      color: colors?.secondary || '#475569',
       marginBottom: '5px',
       fontWeight: '500'
     },
@@ -374,18 +374,18 @@ export default function ResumePreview() {
       pageBreakInside: 'avoid'
     },
     certName: {
-      fontSize: '10.5px',
+      fontSize: '11px',
       fontWeight: '600',
       color: colors?.text || '#1e293b'
     },
     certIssuer: {
       fontSize: '10px',
-      color: colors?.secondary || '#64748b',
+      color: colors?.secondary || '#475569',
       fontStyle: 'italic'
     },
     certDate: {
       fontSize: '10px',
-      color: colors?.secondary || '#64748b',
+      color: colors?.secondary || '#475569',
       whiteSpace: 'nowrap'
     },
     sidebar: {
@@ -870,7 +870,7 @@ export default function ResumePreview() {
             <div style={{
               ...styles.title,
               fontSize: fonts?.sizes?.title || '12px',
-              color: colors?.secondary || '#64748b',
+              color: colors?.secondary || '#475569',
               textTransform: 'uppercase',
               letterSpacing: '1px'
             }}>
